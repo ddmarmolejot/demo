@@ -1,0 +1,411 @@
+from django.urls import path
+from . import views
+from .payments_views import (
+    api_get_deuda, procesar_pago, generar_pdf_pago, generar_ticket_pago,
+    pago_eliminar
+)
+
+urlpatterns = [
+    path('', views.dashboard, name='dashboard'),
+    path('caja/', views.caja_dashboard, name='caja-dashboard'),
+    path('pagos/', views.pagos_lista, name='pagos-lista'),
+    path('reportes/', views.reportes_index, name='reportes-index'),
+    path(
+        'reportes/ingresos-egresos/',
+        views.reportes_ingresos_egresos,
+        name='reportes-ingresos-egresos'
+    ),
+    path(
+        'reportes/clientes/',
+        views.reportes_clientes,
+        name='reportes-clientes'
+    ),
+    path(
+        'reportes/ots/',
+        views.reportes_ots,
+        name='reportes-ots'
+    ),
+    path(
+        'reportes/clientes-planes/',
+        views.reportes_clientes_planes,
+        name='reportes-clientes-planes'
+    ),
+    path(
+        'reportes/deuda/',
+        views.reportes_deuda,
+        name='reportes-deuda'
+    ),
+    path('clientes/', views.cliente_lista, name='index'),
+    path('cliente/nuevo/', views.cliente_crear, name='cliente-crear'),
+    path('cliente/<int:pk>/', views.cliente_detalle, name='cliente-detalle'),
+    path(
+        'cliente/<int:pk>/editar/',
+        views.cliente_editar,
+        name='cliente-editar'
+    ),
+    path(
+        'cliente/<int:pk>/eliminar/',
+        views.cliente_eliminar,
+        name='cliente-eliminar'
+    ),
+    path(
+        'cliente/<int:pk>/toggle-status/',
+        views.cliente_status_toggle,
+        name='cliente-status-toggle'
+    ),
+    path(
+        'cliente/<int:pk>/agregar-plan/',
+        views.cliente_agregar_plan,
+        name='cliente-agregar-plan'
+    ),
+    path(
+        'cliente/<int:pk>/plan/<int:plan_id>/editar/',
+        views.cliente_editar_plan,
+        name='cliente-plan-editar'
+    ),
+    path(
+        'cliente/<int:pk>/plan/<int:plan_id>/eliminar/',
+        views.cliente_eliminar_plan,
+        name='cliente-plan-eliminar'
+    ),
+    path(
+        'cliente/<int:pk>/deuda/eliminar/',
+        views.cliente_deuda_eliminar,
+        name='cliente-deuda-eliminar'
+    ),
+    path(
+        'cliente/<int:pk>/crear-ot/',
+        views.cliente_crear_ot,
+        name='cliente-crear-ot'
+    ),
+    path(
+        'cliente/<int:pk>/ot/crear/',
+        views.cliente_ot_crear,
+        name='cliente-ot-crear'
+    ),
+
+    # Técnicos / OTs
+    path('tecnicos/', views.tecnico_lista, name='tecnico-lista'),
+    path(
+        'tecnicos/nuevo/',
+        views.tecnico_crear,
+        name='tecnico-crear'
+    ),
+    path(
+        'tecnicos/editar/<int:pk>/',
+        views.tecnico_editar,
+        name='tecnico-editar'
+    ),
+    path(
+        'tecnicos/eliminar/<int:pk>/',
+        views.tecnico_eliminar,
+        name='tecnico-eliminar'
+    ),
+    path(
+        'ot/completar/<int:pk>/',
+        views.ot_completar,
+        name='ot-completar'
+    ),
+    path(
+        'ot/eliminar/<int:pk>/',
+        views.ot_eliminar,
+        name='ot-eliminar'
+    ),
+
+    # Ajustes Layout
+    path('ajustes/', views.ajustes_index, name='ajustes-index'),
+    path('ajustes/importar/', views.ajustes_importar, name='ajustes-importar'),
+    path(
+        'ajustes/empresa/',
+        views.company_settings_edit,
+        name='company-settings'
+    ),
+
+    # Zonas CRUD
+    path('ajustes/zonas/', views.zona_lista, name='zona-lista'),
+    path(
+        'ajustes/zonas/distrito/nuevo/',
+        views.distrito_crear,
+        name='distrito-crear'
+    ),
+    path(
+        'ajustes/zonas/distrito/editar/<int:pk>/',
+        views.distrito_editar,
+        name='distrito-editar'
+    ),
+    path(
+        'ajustes/zonas/distrito/eliminar/<int:pk>/',
+        views.distrito_eliminar,
+        name='distrito-eliminar'
+    ),
+    path(
+        'ajustes/zonas/distrito/<int:distrito_id>/sectores/masivo/',
+        views.sector_masivo,
+        name='sector-masivo'
+    ),
+
+    path(
+        'ajustes/zonas/sector/nuevo/',
+        views.sector_crear,
+        name='sector-crear'
+    ),
+    path(
+        'ajustes/zonas/sector/editar/<int:pk>/',
+        views.sector_editar,
+        name='sector-editar'
+    ),
+    path(
+        'ajustes/zonas/sector/eliminar/<int:pk>/',
+        views.sector_eliminar,
+        name='sector-eliminar'
+    ),
+    path(
+        'ajustes/zonas/sector/<int:sector_id>/vias/masivo/',
+        views.via_masiva,
+        name='via-masiva'
+    ),
+
+    path(
+        'ajustes/zonas/via/nuevo/',
+        views.via_crear,
+        name='via-crear'
+    ),
+    path(
+        'ajustes/zonas/via/editar/<int:pk>/',
+        views.via_editar,
+        name='via-editar'
+    ),
+    path(
+        'ajustes/zonas/via/eliminar/<int:pk>/',
+        views.via_eliminar,
+        name='via-eliminar'
+    ),
+
+    # Servicios & Planes CRUD
+    path(
+        'ajustes/servicios/',
+        views.servicio_lista,
+        name='servicio-lista'
+    ),
+    path(
+        'ajustes/servicios/nuevo/',
+        views.servicio_crear,
+        name='servicio-crear'
+    ),
+    path(
+        'ajustes/servicios/editar/<int:pk>/',
+        views.servicio_editar,
+        name='servicio-editar'
+    ),
+    path(
+        'ajustes/servicios/eliminar/<int:pk>/',
+        views.servicio_eliminar,
+        name='servicio-eliminar'
+    ),
+    path(
+        'ajustes/servicios/<int:servicio_id>/plan/nuevo/',
+        views.plan_crear_en_servicio,
+        name='plan-crear-en-servicio'
+    ),
+    path(
+        'ajustes/planes/editar/<int:pk>/',
+        views.plan_editar,
+        name='plan-editar'
+    ),
+    path(
+        'ajustes/planes/eliminar/<int:pk>/',
+        views.plan_eliminar,
+        name='plan-eliminar'
+    ),
+
+    # OT Conceptos CRUD
+    path(
+        'ajustes/ot-conceptos/',
+        views.ot_concepto_lista,
+        name='ot-lista'
+    ),
+    path(
+        'ajustes/ot-conceptos/nuevo/',
+        views.ot_concepto_crear,
+        name='ot-concepto-crear'
+    ),
+    path(
+        'ajustes/ot-conceptos/editar/<int:pk>/',
+        views.ot_concepto_editar,
+        name='ot-concepto-editar'
+    ),
+    path(
+        'ajustes/ot-conceptos/eliminar/<int:pk>/',
+        views.ot_concepto_eliminar,
+        name='ot-concepto-eliminar'
+    ),
+
+    # Series CRUD
+    path('ajustes/series/', views.serie_lista, name='serie-lista'),
+    path(
+        'ajustes/egresos/conceptos/',
+        views.egreso_concepto_lista,
+        name='egreso-concepto-lista'
+    ),
+    path(
+        'ajustes/egresos/conceptos/nuevo/',
+        views.egreso_concepto_crear,
+        name='egreso-concepto-crear'
+    ),
+    path(
+        'ajustes/egresos/conceptos/editar/<int:pk>/',
+        views.egreso_concepto_editar,
+        name='egreso-concepto-editar'
+    ),
+    path(
+        'ajustes/egresos/conceptos/eliminar/<int:pk>/',
+        views.egreso_concepto_eliminar,
+        name='egreso-concepto-eliminar'
+    ),
+    path(
+        'ajustes/egresos/',
+        views.egreso_lista,
+        name='egreso-lista'
+    ),
+    path(
+        'ajustes/egresos/<int:pk>/eliminar/',
+        views.egreso_eliminar,
+        name='egreso-eliminar'
+    ),
+    path(
+        'ajustes/roles/',
+        views.roles_lista,
+        name='roles-lista'
+    ),
+    path(
+        'ajustes/roles/nuevo/',
+        views.role_crear,
+        name='role-crear'
+    ),
+    path(
+        'ajustes/roles/editar/<int:pk>/',
+        views.role_editar,
+        name='role-editar'
+    ),
+    path(
+        'ajustes/roles/eliminar/<int:pk>/',
+        views.role_eliminar,
+        name='role-eliminar'
+    ),
+    path(
+        'ajustes/roles/asignar/',
+        views.role_asignar,
+        name='role-asignar'
+    ),
+    path(
+        'ajustes/usuarios/nuevo/',
+        views.usuario_crear,
+        name='usuario-crear'
+    ),
+    path(
+        'ajustes/usuarios/editar/<int:pk>/',
+        views.usuario_editar,
+        name='usuario-editar'
+    ),
+    path(
+        'ajustes/usuarios/eliminar/<int:pk>/',
+        views.usuario_eliminar,
+        name='usuario-eliminar'
+    ),
+    path(
+        'ajustes/series/nuevo/',
+        views.serie_crear,
+        name='serie-crear'
+    ),
+    path(
+        'ajustes/series/editar/<int:pk>/',
+        views.serie_editar,
+        name='serie-editar'
+    ),
+    path(
+        'ajustes/series/eliminar/<int:pk>/',
+        views.serie_eliminar,
+        name='serie-eliminar'
+    ),
+
+    # Mikrotik CRUD
+    path(
+        'ajustes/mikrotik/',
+        views.mikrotik_lista,
+        name='mikrotik-lista'
+    ),
+    path(
+        'ajustes/mikrotik/sync/',
+        views.mikrotik_sync,
+        name='mikrotik-sync'
+    ),
+    path(
+        'ajustes/mikrotik/<int:pk>/status/',
+        views.mikrotik_status,
+        name='mikrotik-status'
+    ),
+    path(
+        'ajustes/mikrotik/<int:pk>/traffic/',
+        views.mikrotik_traffic,
+        name='mikrotik-traffic'
+    ),
+    path(
+        'ajustes/mikrotik/nuevo/',
+        views.mikrotik_crear,
+        name='mikrotik-crear'
+    ),
+    path(
+        'ajustes/mikrotik/editar/<int:pk>/',
+        views.mikrotik_editar,
+        name='mikrotik-editar'
+    ),
+    path(
+        'ajustes/mikrotik/eliminar/<int:pk>/',
+        views.mikrotik_eliminar,
+        name='mikrotik-eliminar'
+    ),
+
+    # API / AJAX
+    path(
+        'api/deuda/<int:cliente_id>/',
+        api_get_deuda,
+        name='api-deuda'
+    ),
+    path(
+        'api/pago/procesar/',
+        procesar_pago,
+        name='api-pago-procesar'
+    ),
+    path(
+        'pago/<int:pago_id>/pdf/',
+        generar_pdf_pago,
+        name='pago-pdf'
+    ),
+    path(
+        'pago/<int:pago_id>/ticket/',
+        generar_ticket_pago,
+        name='pago-ticket'
+    ),
+    path(
+        'pago/<int:pago_id>/eliminar/',
+        pago_eliminar,
+        name='pago-eliminar'
+    ),
+    path(
+        'api/vias/generar-id-pppoe/',
+        views.api_generar_id_pppoe,
+        name='api-gen-pppoe'
+    ),
+
+    # AJAX
+    path(
+        'ajax/load-sectores/',
+        views.ajax_load_sectores,
+        name='ajax_load_sectores'
+    ),
+    path(
+        'ajax/load-vias/',
+        views.ajax_load_vias,
+        name='ajax_load_vias'
+    ),
+]

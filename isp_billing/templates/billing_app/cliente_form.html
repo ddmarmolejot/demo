@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <form method="post" id="formCliente">
+            {% csrf_token %}
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">{% if edit_mode %}Editar Cliente{% else %}Registro de Nuevo Cliente{% endif %}
+                </h2>
+                <div>
+                    <a href="{% if edit_mode %}{% url 'cliente-detalle' form.instance.pk %}{% else %}{% url 'index' %}{% endif %}"
+                        class="btn btn-light border me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary btn-lg px-5">Guardar Cliente</button>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- PANEL 1: DATOS PERSONALES -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-dark text-white fw-bold">1. Información Personal y Ubicación</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">DNI</label>
+                                    {{ form.dni }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Celular</label>
+                                    {{ form.celular }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Apellidos</label>
+                                    {{ form.apellidos }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Nombres</label>
+                                    {{ form.nombres }}
+                                </div>
+                            </div>
+
+                            <hr>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Distrito</label>
+                                {{ form.distrito }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Sector</label>
+                                {{ form.sector }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Vía / Dirección</label>
+                                {{ form.via }}
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label fw-bold">Referencia de ubicación</label>
+                                {{ form.referencia }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 2: CONFIGURACIÓN TÉCNICA -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between">
+                            <span>2. Configuración Técnica (Mikrotik)</span>
+                            <div class="form-check form-switch m-0">
+                                {{ form.estado_activo }}
+                                <label class="form-check-label small">Servicio Activo</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-primary">Mikrotik de enlace</label>
+                                {{ form.mikrotik_vinculado }}
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-primary">Modo de Conexión</label>
+                                {{ form.tipo_conexion }}
+                            </div>
+
+                            <div id="section_pppoe" class="tech-section p-3 bg-light rounded border mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-bold">Configuración PPPoE</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnGenPPPoE">
+                                        <i class="fas fa-magic me-1"></i>Generar ID
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="small fw-bold">Usuario / ID (4 Dígitos)</label>
+                                    {{ form.usuario_pppoe }}
+                                </div>
+                                <div class="mb-0">
+                                    <label class="small fw-bold">Password</label>
+                                    {{ form.password_pppoe }}
+                                </div>
+                            </div>
+
+                            <div id="section_static" class="tech-section p-3 bg-light rounded border mb-3"
+                                style="display:none;">
+                                <h6 class="fw-bold mb-3">IP Estática</h6>
+                                <div class="mb-0">
+                                    <label class="small fw-bold">IP Asignada manualmente</label>
+                                    {{ form.ip_asignada }}
+                                    <div class="form-text small">Ingrese la IP fija otorgada al cliente.</div>
+                                </div>
+                            </div>
+
+                            <div id="section_dhcp" class="tech-section p-3 bg-light rounded border mb-3"
+                                style="display:none;">
+                                <h6 class="fw-bold mb-1">DHCP (Pool Dinámico)</h6>
+                                <p class="small text-muted mb-0">El cliente recibirá una IP automáticamente desde el
+                                    Pool configurado en Mikrotik.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleTechFields() {
+        const val = $('#id_tipo_conexion').val();
+        $('.tech-section').hide();
+        if (val === 'PPPOE') $('#section_pppoe').show();
+        else if (val === 'STATIC') $('#section_static').show();
+        else if (val === 'DHCP') $('#section_dhcp').show();
+    }
+
+    $(document).ready(function () {
+        toggleTechFields();
+
+        // Carga dinámica de sectores
+        $('#id_distrito').change(function () {
+            var url = "{% url 'ajax_load_sectores' %}";
+            var distritoId = $(this).val();
+            $.ajax({
+                url: url,
+                data: { 'distrito': distritoId },
+                success: function (data) {
+                    var html = '<option value="">--- Seleccione Sector ---</option>';
+                    data.forEach(function (item) {
+                        html += '<option value="' + item.id + '">' + item.nombre + '</option>';
+                    });
+                    $("#id_sector").html(html);
+                }
+            });
+        });
+
+        // Carga dinámica de vías
+        $('#id_sector').change(function () {
+            var url = "{% url 'ajax_load_vias' %}";
+            var sectorId = $(this).val();
+            $.ajax({
+                url: url,
+                data: { 'sector': sectorId },
+                success: function (data) {
+                    var html = '<option value="">--- Seleccione Vía ---</option>';
+                    data.forEach(function (item) {
+                        html += '<option value="' + item.id + '">' + item.nombre + '</option>';
+                    });
+                    $("#id_via").html(html);
+                }
+            });
+        });
+
+        // Generación automática de ID PPPoE
+        $('#btnGenPPPoE').click(function () {
+            $.get("{% url 'api-gen-pppoe' %}", function (data) {
+                $('#id_usuario_pppoe').val(data.id);
+                // Si el password está vacío, poner el mismo que el usuario o uno por defecto
+                if (!$('#id_password_pppoe').val()) {
+                    $('#id_password_pppoe').val(data.id);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

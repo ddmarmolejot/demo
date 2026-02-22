@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Servicios y Planes</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-success shadow-sm btn-open-panel" data-title="Nuevo Servicio"
+            data-url="{% url 'servicio-crear' %}">
+            <i class="fas fa-plus me-2"></i>Nuevo Servicio
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for servicio in servicios %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 fw-bold text-primary">{{ servicio.nombre }}</h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown"><i
+                            class="fas fa-ellipsis-h"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><button class="dropdown-item btn-open-panel" data-title="Editar Servicio"
+                                data-url="{% url 'servicio-editar' servicio.pk %}"><i
+                                    class="fas fa-edit me-2"></i>Editar</button></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'servicio-eliminar' servicio.pk %}"
+                                onclick="return confirm('¿Eliminar servicio y todos sus planes?')"><i
+                                    class="fas fa-trash me-2"></i>Eliminar</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for plan in servicio.planes.all %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <span class="fw-medium">{{ plan.nombre }}</span>
+                            <div class="text-success small fw-bold">S/ {{ plan.precio }}</div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning border-0 btn-open-panel"
+                                data-title="Editar Plan" data-url="{% url 'plan-editar' plan.pk %}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{% url 'plan-eliminar' plan.pk %}" onclick="return confirm('¿Eliminar plan?')"
+                                class="btn btn-sm btn-outline-danger border-0">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-4 text-center text-muted"><small>Sin planes registrados.</small></div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer bg-light bg-opacity-50 border-0 p-3">
+                <button class="btn btn-sm btn-outline-primary w-100 py-2 btn-open-panel"
+                    data-title="Nuevo Plan para {{ servicio.nombre }}"
+                    data-url="{% url 'plan-crear-en-servicio' servicio.pk %}">
+                    <i class="fas fa-plus-circle me-1"></i>Añadir Nuevo Plan
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5 bg-white rounded shadow-sm">
+            <i class="fas fa-box-open fa-4x text-muted mb-3 opacity-25"></i>
+            <h5>Sin servicios registrados</h5>
+            <p class="text-muted">Empiece creando un servicio (Internet, TV, etc.) para añadir planes.</p>
+            <button class="btn btn-success mt-2 btn-open-panel" data-title="Nuevo Servicio"
+                data-url="{% url 'servicio-crear' %}">Crear Servicio</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

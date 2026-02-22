@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-receipt"></i> Pago {{ pago.id }}</h1>
+        <a href="{% url 'pago-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Atrás
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5>Detalles del Pago</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID Pago:</strong> {{ pago.id }}</p>
+                        <p><strong>Cliente:</strong> {{ pago.cliente.nombres_completos }}</p>
+                        <p><strong>DNI/RUC:</strong> {{ pago.cliente.dni_ruc }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Monto:</strong> <span class="badge badge-success">S/. {{ pago.monto }}</span></p>
+                        <p><strong>Método:</strong> {{ pago.metodo }}</p>
+                        <p><strong>Fecha:</strong> {{ pago.fecha|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                {% if pago.referencia %}
+                    <hr>
+                    <p><strong>Referencia:</strong> {{ pago.referencia }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Acciones</h5>
+            </div>
+            <div class="card-body">
+                <button onclick="printPage()" class="btn btn-info">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <a href="{% url 'pago-list' %}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> Volver a Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

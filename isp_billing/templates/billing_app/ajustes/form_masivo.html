@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">{{ titulo }}</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Ingrese hasta 10 sectores a la vez para este distrito.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+
+                    <div class="list-group list-group-flush mb-4">
+                        {% for form in formset %}
+                        <div class="list-group-item px-0">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+                                {{ form.nombre }}
+                            </div>
+                            {% for error in form.nombre.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                            {{ form.id }}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Guardar Todos los Sectores
+                        </button>
+                        <a href="{% url 'zona-lista' %}" class="btn btn-light border">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item input {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+</style>
+{% endblock %}

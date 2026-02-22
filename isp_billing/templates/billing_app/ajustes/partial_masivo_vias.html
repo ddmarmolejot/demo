@@ -1,0 +1,42 @@
+<div class="side-form-container">
+    <h5 class="fw-bold text-success mb-1">Carga Masiva de Vías</h5>
+    <p class="text-muted small mb-4">Añadiendo a: <strong>{{ sector.nombre }}</strong></p>
+
+    <form method="post" action="{% url 'via-masiva' sector.pk %}">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="list-group list-group-flush mb-4 border rounded overflow-hidden">
+            {% for form in formset %}
+            <div class="list-group-item bg-light bg-opacity-10 py-2 border-bottom">
+                <div class="row g-2">
+                    <div class="col-5">
+                        {{ form.tipo }}
+                    </div>
+                    <div class="col-7">
+                        {{ form.nombre }}
+                    </div>
+                </div>
+                {{ form.id }}
+                {% if form.nombre.errors %}
+                <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success"><i class="fas fa-check-circle me-2"></i>Guardar todas las
+                Vías</button>
+            <button type="button" class="btn btn-light" onclick="closeActionPanel()">Cancelar</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .side-form-container select,
+    .side-form-container input {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.5rem;
+    }
+</style>

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Series y Correlativos</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-info text-white shadow-sm btn-open-panel" data-title="Nueva Serie"
+            data-url="{% url 'serie-crear' %}">
+            <i class="fas fa-plus me-2"></i>Nueva Serie
+        </button>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Tipo Comprobante</th>
+                    <th>Serie</th>
+                    <th>Último Número</th>
+                    <th>Siguiente</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for serie in series %}
+                <tr>
+                    <td class="ps-4">
+                        <span
+                            class="badge {% if serie.tipo == 'RECIBO' %}bg-secondary{% elif serie.tipo == 'BOLETA' %}bg-primary{% else %}bg-dark{% endif %} px-2 py-1">
+                            {{ serie.get_tipo_display|default:serie.tipo }}
+                        </span>
+                    </td>
+                    <td class="fw-bold fs-6">{{ serie.serie }}</td>
+                    <td class="text-muted">{{ serie.ultimo_numero|stringformat:"08d" }}</td>
+                    <td class="text-success fw-bold">{{ serie.next_number }}</td>
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning border-0 btn-open-panel"
+                                data-title="Editar Serie" data-url="{% url 'serie-editar' serie.pk %}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{% url 'serie-eliminar' serie.pk %}" class="btn btn-sm btn-outline-danger border-0"
+                                onclick="return confirm('¿Eliminar serie?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted small">Sin series configuradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

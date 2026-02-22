@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-user"></i> {{ cliente.nombres_completos }}</h1>
+        <div class="btn-group gap-1">
+            <a href="{% url 'cliente-update' cliente.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a href="{% url 'cliente-list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Atrás
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Información Personal</h5></div>
+            <div class="card-body">
+                <p><strong>Nombre:</strong> {{ cliente.nombres_completos }}</p>
+                <p><strong>DNI/RUC:</strong> {{ cliente.dni_ruc }}</p>
+                <p><strong>Teléfono:</strong> {{ cliente.telf }}</p>
+                <p><strong>Estado:</strong> 
+                    {% if cliente.estado_cliente == 'Activo' %}
+                        <span class="badge badge-success">Activo</span>
+                    {% elif cliente.estado_cliente == 'Suspendido' %}
+                        <span class="badge badge-warning">Suspendido</span>
+                    {% else %}
+                        <span class="badge badge-danger">Retirado</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Ubicación</h5></div>
+            <div class="card-body">
+                {% if cliente.via %}
+                    <p><strong>Vía:</strong> {{ cliente.via.tipo_via }} {{ cliente.via.nombre }}</p>
+                    <p><strong>Número:</strong> {{ cliente.numero_casa }}</p>
+                    <p><strong>Mz/Lote/Int:</strong> {{ cliente.mz_lote_int }}</p>
+                    <p><strong>Sector:</strong> {{ cliente.via.sector.nombre }}</p>
+                    <p><strong>Distrito:</strong> {{ cliente.via.sector.distrito.nombre }}</p>
+                {% else %}
+                    <p class="text-muted">No hay ubicación registrada</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-plug"></i> Servicios Activos ({{ servicios.count }})</h5>
+                    <a href="{% url 'servicio-create' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Servicio
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if servicios %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Técnico</th>
+                                    <th>NAP</th>
+                                    <th>Potencia</th>
+                                    <th>Fecha Alta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for servicio in servicios %}
+                                    <tr>
+                                        <td><span class="badge badge-success">{{ servicio.plan.nombre_plan }}</span></td>
+                                        <td>{{ servicio.tecnico.nombres_apellidos }}</td>
+                                        <td>{{ servicio.nap.nombre }}</td>
+                                        <td>{{ servicio.potencia_dbm }} dBm</td>
+                                        <td>{{ servicio.fecha_alta|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay servicios activos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-money-bill"></i> Historial de Pagos ({{ pagos.count }})</h5>
+                    <a href="{% url 'pago-create' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> Nuevo Pago
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if pagos %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Referencia</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pago in pagos %}
+                                    <tr>
+                                        <td><strong>S/. {{ pago.monto }}</strong></td>
+                                        <td>{{ pago.metodo }}</td>
+                                        <td>{{ pago.referencia }}</td>
+                                        <td>{{ pago.fecha|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay pagos registrados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

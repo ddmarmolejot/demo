@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Gestión de Zonas</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-primary shadow-sm btn-open-panel" data-title="Nuevo Distrito"
+            data-url="{% url 'distrito-crear' %}">
+            <i class="fas fa-plus me-2"></i>Nuevo Distrito
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="accordion shadow-sm" id="accordionZonas">
+            {% for distrito in distritos %}
+            <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden text-decoration-none">
+                <h2 class="accordion-header d-flex align-items-center bg-white">
+                    <button class="accordion-button collapsed flex-grow-1 py-3" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#distrito{{ distrito.pk }}">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3"><i
+                                    class="fas fa-city"></i></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ distrito.nombre }}</h6>
+                                <span class="text-muted small">{{ distrito.sectores.count }} sectores registrados</span>
+                            </div>
+                        </div>
+                    </button>
+                    <div class="pe-4 border-start py-2 ms-2 d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-success border-0 btn-open-panel"
+                            data-title="Sectores: {{ distrito.nombre|escapejs }}"
+                            data-url="{% url 'sector-masivo' distrito.pk %}">
+                            <i class="fas fa-plus-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning border-0 btn-open-panel"
+                            data-title="Editar Distrito" data-url="{% url 'distrito-editar' distrito.pk %}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{% url 'distrito-eliminar' distrito.pk %}"
+                            class="btn btn-sm btn-outline-danger border-0"
+                            onclick="return confirm('Eliminar distrito?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </h2>
+                <div id="distrito{{ distrito.pk }}" class="accordion-collapse collapse"
+                    data-bs-parent="#accordionZonas">
+                    <div class="accordion-body bg-light bg-opacity-25 pb-4">
+                        <div class="row g-3">
+                            {% for sector in distrito.sectores.all %}
+                            <div
+                                class="col-md-6 sector-item {% if forloop.counter > 5 %}d-none sector-hidden-{{ distrito.pk }}{% endif %}">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0 text-success"><i class="fas fa-map-pin me-2"></i>{{ sector.nombre }}</h6>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm p-0" data-bs-toggle="dropdown"><i
+                                                        class="fas fa-ellipsis-v text-muted"></i></button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                    <li><button class="dropdown-item small btn-open-panel"
+                                                            data-title="Vías para {{ sector.nombre|escapejs }}"
+                                                            data-url="{% url 'via-masiva' sector.pk %}"><i
+                                                                class="fas fa-road me-2 text-primary"></i>Añadir Vías
+                                                            (Masivo)</button></li>
+                                                    <li><button class="dropdown-item small btn-open-panel"
+                                                            data-title="Editar Sector"
+                                                            data-url="{% url 'sector-editar' sector.pk %}"><i
+                                                                class="fas fa-edit me-2 text-warning"></i>Editar
+                                                            Sector</button></li>
+                                                    <li>
+                                                        <hr class="dropdown-divider">
+                                                    </li>
+                                                    <li><a class="dropdown-item small text-danger"
+                                                            href="{% url 'sector-eliminar' sector.pk %}"
+                                                            onclick="return confirm('¿Eliminar sector?')"><i
+                                                                class="fas fa-trash me-2"></i>Eliminar Sector</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2 mt-3">
+                                            {% for via in sector.vias.all %}
+                                            <span
+                                                class="badge bg-white text-dark border fw-normal py-2 px-3 d-flex align-items-center shadow-sm">
+                                                <small class="text-primary fw-bold me-1">{{ via.get_tipo_display }}</small>
+                                                <span class="ms-1">{{ via.nombre }}</span>
+                                                <button class="btn btn-sm text-warning ms-2 p-0 btn-open-panel"
+                                                    data-title="Editar Vía" data-url="{% url 'via-editar' via.pk %}">
+                                                    <i class="fas fa-edit fa-xs"></i>
+                                                </button>
+                                                <a href="{% url 'via-eliminar' via.pk %}"
+                                                    onclick="return confirm('¿Eliminar vía?')"
+                                                    class="text-danger ms-1 small">
+                                                    <i class="fas fa-times fa-xs"></i>
+                                                </a>
+                                            </span>
+                                            {% empty %}
+                                            <span class="text-muted small fst-italic">Sin vías registradas.</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if distrito.sectores.count > 5 %}
+                        <div class="text-center mt-4">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-4"
+                                onclick="toggleSectores('{{ distrito.pk }}', this)">Ver más sectores <i
+                                    class="fas fa-chevron-down ms-1"></i></button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 bg-white rounded shadow-sm">
+                <h5>No hay distritos registrados.</h5>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSectores(distritoId, btn) {
+        const hidden = $(`.sector-hidden-${distritoId}`);
+        if (hidden.hasClass('d-none')) {
+            hidden.removeClass('d-none');
+            $(btn).html('Ver menos <i class="fas fa-chevron-up ms-1"></i>');
+        } else {
+            hidden.addClass('d-none');
+            $(btn).html('Ver más sectores <i class="fas fa-chevron-down ms-1"></i>');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+<div class="side-form-container">
+    <h5 class="fw-bold mb-3">{{ titulo|default:"Añadir Plan" }}</h5>
+    <p class="small text-muted mb-3">Seleccione un plan del catálogo para asignar a <strong>{{ cliente.apellidos }}, {{ cliente.nombres }}</strong>.</p>
+    {% if planes %}
+    <div class="card bg-light bg-opacity-50 border-0 mb-4">
+        <div class="card-body py-3">
+            <h6 class="fw-bold small text-muted mb-2">Planes disponibles</h6>
+            <div class="small overflow-auto" style="max-height: 180px;">
+                {% for p in planes %}
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-opacity-25">
+                    <span class="fw-medium">{{ p.nombre }}{% if p.servicio %} <span class="text-muted">({{ p.servicio.nombre }})</span>{% endif %}</span>
+                    <span class="badge bg-success">S/ {{ p.precio }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <form method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="text-danger small">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>Guardar Plan</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="closeActionPanel()">Cancelar</button>
+        </div>
+    </form>
+</div>

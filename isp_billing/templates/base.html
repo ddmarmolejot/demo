@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIXsolution - {{ company_settings.nombre_empresa|default:"Nombre de la Empresa" }}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #007AFF;
+            /* Apple Blue */
+            --bg-body: #F5F5F7;
+            --bg-card: rgba(255, 255, 255, 0.72);
+            --sidebar-bg: rgba(246, 246, 246, 0.85);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #1D1D1F;
+            --text-secondary: #86868B;
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1E1E1E;
+            --bg-card: rgba(44, 44, 46, 0.8);
+            --sidebar-bg: rgba(30, 30, 30, 0.9);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #F5F5F7;
+            --text-secondary: #AEAEB2;
+        }
+
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .glass {
+            background: var(--bg-card) !important;
+            color: var(--text-main);
+        }
+
+        [data-theme="dark"] .card-header,
+        [data-theme="dark"] .bg-white,
+        [data-theme="dark"] .bg-light {
+            background-color: rgba(44, 44, 46, 0.85) !important;
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .text-dark {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .text-muted,
+        [data-theme="dark"] .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        [data-theme="dark"] .table {
+            color: var(--text-main);
+        }
+
+        [data-theme="dark"] .table thead,
+        [data-theme="dark"] .table th,
+        [data-theme="dark"] .table td {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="dark"] .dropdown-menu {
+            background-color: #2c2c2e;
+            color: var(--text-main);
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: rgba(44, 44, 46, 0.85);
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="dark"] .btn-outline-secondary,
+        [data-theme="dark"] .btn-outline-primary,
+        [data-theme="dark"] .btn-outline-info,
+        [data-theme="dark"] .btn-outline-success,
+        [data-theme="dark"] .btn-outline-warning,
+        [data-theme="dark"] .btn-outline-danger {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-close {
+            margin-left: auto;
+            border: 0;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .sidebar-header i {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        .nav {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 16px;
+        }
+
+        .nav-link {
+            padding: 10px 16px;
+            margin: 2px 10px;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.92rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: transform 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .nav-link.active i {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .nav-section-title {
+            padding: 24px 20px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 32px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 24px;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #0062CC;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        .action-panel {
+            width: 420px;
+            height: 96vh;
+            position: fixed;
+            right: 20px;
+            top: 2vh;
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            transform: translateX(450px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-panel.show {
+            transform: translateX(0);
+        }
+
+        .action-panel-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-panel-body {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                height: 100dvh;
+                overflow-y: auto;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-close {
+                display: inline-flex;
+            }
+
+            .nav {
+                flex: 0 0 auto;
+                overflow: visible;
+            }
+
+            .sidebar .mt-auto {
+                margin-top: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .action-panel {
+                width: calc(100% - 32px);
+                right: 16px;
+                top: 16px;
+                height: calc(100vh - 32px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            {% if company_settings and company_settings.logo %}
+            <img src="{{ company_settings.logo.url }}" alt="{{ company_settings.nombre_empresa }}"
+                style="height: 40px; width: 40px; object-fit: contain;">
+            {% else %}
+            <i class="fas fa-satellite-dish"></i>
+            <div class="d-flex flex-column">
+                <span>DIXsolution</span>
+                <small class="text-muted">
+                    {{ company_settings.nombre_empresa|default:"Nombre de la Empresa" }}
+                </small>
+            </div>
+            {% endif %}
+            <button class="sidebar-close d-lg-none" id="closeSidebar" aria-label="Cerrar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="nav flex-column">
+            <div class="nav-section-title">General</div>
+            <a href="{% url 'dashboard' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            {% if can_manage_caja %}
+            <a href="{% url 'caja-dashboard' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'caja-dashboard' %}active{% endif %}">
+                <i class="fas fa-wallet"></i> Caja
+            </a>
+            <a href="{% url 'reportes-index' %}"
+                class="nav-link {% if 'reportes' in request.path %}active{% endif %}">
+                <i class="fas fa-file-excel"></i> Reportes
+            </a>
+            {% endif %}
+            {% if can_manage_caja or can_cobrar %}
+            <a href="{% url 'pagos-lista' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'pagos-lista' %}active{% endif %}">
+                <i class="fas fa-receipt"></i> Comprobantes
+            </a>
+            {% endif %}
+            <a href="{% url 'index' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'index' or 'cliente' in request.path %}active{% endif %}">
+                <i class="fas fa-users-viewfinder"></i> Clientes
+            </a>
+            <a href="{% url 'tecnico-lista' %}" class="nav-link {% if 'tecnico' in request.path %}active{% endif %}">
+                <i class="fas fa-user-gear"></i> Técnicos y OTs
+            </a>
+
+            {% if can_manage_ajustes %}
+            <div class="nav-section-title">Configuración</div>
+            <a href="{% url 'ajustes-index' %}" class="nav-link {% if 'ajustes' in request.path %}active{% endif %}">
+                <i class="fas fa-sliders"></i> Panel Ajustes
+            </a>
+            {% if is_developer %}
+            <a href="{% url 'ajustes-importar' %}" class="nav-link {% if 'ajustes/importar' in request.path %}active{% endif %}">
+                <i class="fas fa-file-import"></i> Importar
+            </a>
+            {% endif %}
+            <a href="{% url 'zona-lista' %}" class="nav-link {% if 'zona' in request.path %}active{% endif %}">
+                <i class="fas fa-map-location-dot"></i> Zonas
+            </a>
+            <a href="{% url 'servicio-lista' %}"
+                class="nav-link {% if 'servicio' in request.path or 'plan' in request.path %}active{% endif %}">
+                <i class="fas fa-layer-group"></i> Servicios y Planes
+            </a>
+            <a href="{% url 'ot-lista' %}" class="nav-link {% if 'ot' in request.path %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i> Ordenes Técnicas
+            </a>
+            <a href="{% url 'mikrotik-lista' %}" class="nav-link {% if 'mikrotik' in request.path %}active{% endif %}">
+                <i class="fas fa-network-wired"></i> Mikrotik / Red
+            </a>
+            <a href="{% url 'serie-lista' %}" class="nav-link {% if 'serie' in request.path %}active{% endif %}">
+                <i class="fas fa-receipt"></i> Comprobantes / Series
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="mt-auto p-3 border-top border-light border-opacity-10">
+            <button class="btn w-100 d-flex align-items-center justify-content-between glass text-main"
+                onclick="toggleDarkMode()">
+                <span><i class="fas fa-moon me-2"></i>Modo Oscuro</span>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                </div>
+            </button>
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="btn w-100 mt-2 d-flex align-items-center justify-content-center glass">
+                <i class="fas fa-right-from-bracket me-2"></i>Salir
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+    <div class="main-content">
+        <!-- Barra de estado / Ventana estilo macOS (opcional, para estética) -->
+        <div class="d-none d-lg-flex align-items-center mb-4 opacity-50">
+            <div class="d-flex gap-2">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #FF5F57;"></div>
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #FEBC2E;"></div>
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #28C840;"></div>
+            </div>
+            <div class="ms-3 small fw-medium">
+                DIXsolution - {{ company_settings.nombre_empresa|default:"Nombre de la Empresa" }}
+            </div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light glass mb-4 rounded-3 d-lg-none">
+            <div class="container-fluid">
+                <button class="btn btn-outline-secondary" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="ms-2 fw-bold">
+                    DIXsolution - {{ company_settings.nombre_empresa|default:"Nombre de la Empresa" }}
+                </span>
+            </div>
+        </nav>
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Panel de Acción Derecho -->
+    <div id="actionPanel" class="action-panel">
+        <div class="action-panel-header">
+            <h5 class="mb-0 fw-bold" id="actionPanelTitle">Acción</h5>
+            <button type="button" class="btn-close" onclick="closeActionPanel()"></button>
+        </div>
+        <div class="action-panel-body" id="actionPanelBody">
+            <!-- Contenido dinámico -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme Management
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('darkModeSwitch').checked = !isDark;
+        }
+
+        // Initialize Theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') {
+            document.getElementById('darkModeSwitch').checked = true;
+        }
+
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const toggleSidebarBtn = document.getElementById('toggleSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+
+        function openSidebar() {
+            sidebar?.classList.add('active');
+            sidebarOverlay?.classList.add('show');
+        }
+
+        function closeSidebar() {
+            sidebar?.classList.remove('active');
+            sidebarOverlay?.classList.remove('show');
+        }
+
+        toggleSidebarBtn?.addEventListener('click', function () {
+            if (sidebar?.classList.contains('active')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        closeSidebarBtn?.addEventListener('click', closeSidebar);
+        sidebarOverlay?.addEventListener('click', closeSidebar);
+
+        function openActionPanel(title, url, data = null) {
+            if (!url) return;
+            // Asegurar URL absoluta para no cargar desde ruta relativa incorrecta
+            if (!url.startsWith('http') && !url.startsWith('/')) {
+                url = '/' + url.replace(/^\//, '');
+            }
+            $('#actionPanelTitle').text(title);
+            $('#actionPanelBody').html('<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 small text-muted">Cargando...</p></div>');
+            $('#actionPanel').addClass('show');
+
+            if (data) {
+                // Post data logic if needed
+            } else {
+                $.get(url)
+                    .done(function (html) {
+                        $('#actionPanelBody').html(html);
+                        executePanelScripts();
+                    })
+                    .fail(function () {
+                        $('#actionPanelBody').html('<div class="alert alert-danger m-3">No se pudo cargar. <a href="' + url + '">Abrir en nueva pestaña</a> o recarga la página.</div>');
+                    });
+            }
+        }
+
+        function closeActionPanel() {
+            $('#actionPanel').removeClass('show');
+        }
+
+        $(document).on('click', '.btn-open-panel', function (e) {
+            e.preventDefault();
+            const title = $(this).attr('data-title');
+            const url = $(this).attr('data-url');
+            if (url) {
+                openActionPanel(title, url);
+            }
+        });
+
+        $(document).on('submit', 'form[data-ajax="true"]', function (e) {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(async (res) => {
+                    const contentType = res.headers.get('content-type') || '';
+                    if (contentType.includes('application/json')) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            closeActionPanel();
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                    const html = await res.text();
+                    $('#actionPanelBody').html(html);
+                    executePanelScripts();
+                })
+                .catch(() => {
+                    alert('No se pudo registrar. Intenta nuevamente.');
+                });
+        });
+
+        function executePanelScripts() {
+            const container = document.getElementById('actionPanelBody');
+            if (!container) return;
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach((script) => {
+                const type = script.getAttribute('type') || 'text/javascript';
+                if (type === 'application/json') return;
+                const newScript = document.createElement('script');
+                if (script.src) {
+                    newScript.src = script.src;
+                } else {
+                    newScript.text = script.textContent || '';
+                }
+                document.body.appendChild(newScript);
+                document.body.removeChild(newScript);
+            });
+        }
+    </script>
+    <!-- Modal de Pago: incluido aquí para que su script corra después de jQuery -->
+    {% include 'billing_app/modals/payment_modal.html' %}
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

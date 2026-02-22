@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-list"></i> Planes de Internet</h1>
+        <a href="{% url 'plan-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Plan
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {% for plan in planes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ plan.nombre_plan }}</h5>
+                    <h3 class="text-primary">{{ plan.mbps }} Mbps</h3>
+                    <p class="card-text">
+                        <strong>Precio:</strong> <span class="badge badge-success">S/. {{ plan.precio }}</span>
+                    </p>
+                    <div class="btn-group d-flex gap-1">
+                        <a href="#" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay planes registrados
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

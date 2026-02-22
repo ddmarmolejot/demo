@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-trash"></i> Eliminar Distrito</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Confirmación de Eliminación</h5>
+            </div>
+            <div class="card-body">
+                <p>¿Está seguro que desea eliminar el distrito <strong>{{ distrito.nombre }}</strong>?</p>
+                <p class="text-muted"><small>Esta acción no se puede deshacer.</small></p>
+                
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-check"></i> Sí, Eliminar
+                    </button>
+                </form>
+                <a href="{% url 'distrito-list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

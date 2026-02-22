@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-eye"></i> {{ distrito.nombre }}</h1>
+        <a href="{% url 'distrito-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Atrás
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Información General</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nombre:</strong> {{ distrito.nombre }}</p>
+                        <p><strong>Total Sectores:</strong> {{ distrito.sectores.count }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="{% url 'distrito-update' distrito.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5>Sectores</h5>
+                    <a href="{% url 'sector-create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Sector
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if distrito.sectores.all %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Total Vías</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sector in distrito.sectores.all %}
+                                    <tr>
+                                        <td>{{ sector.nombre }}</td>
+                                        <td>{{ sector.vias.count }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay sectores registrados en este distrito</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

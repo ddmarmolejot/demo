@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-users"></i> Clientes</h1>
+        <a href="{% url 'cliente-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Cliente
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-2">
+            <select name="estado" class="form-control" onchange="this.form.submit()">
+                <option value="">Todos los estados</option>
+                <option value="Activo" {% if request.GET.estado == 'Activo' %}selected{% endif %}>Activo</option>
+                <option value="Suspendido" {% if request.GET.estado == 'Suspendido' %}selected{% endif %}>Suspendido</option>
+                <option value="Retirado" {% if request.GET.estado == 'Retirado' %}selected{% endif %}>Retirado</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for cliente in clientes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ cliente.nombres_completos }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>DNI/RUC:</strong> {{ cliente.dni_ruc }}<br>
+                            <strong>Teléfono:</strong> {{ cliente.telf }}<br>
+                            <strong>Estado:</strong> 
+                            {% if cliente.estado_cliente == 'Activo' %}
+                                <span class="badge badge-success">Activo</span>
+                            {% elif cliente.estado_cliente == 'Suspendido' %}
+                                <span class="badge badge-warning">Suspendido</span>
+                            {% else %}
+                                <span class="badge badge-danger">Retirado</span>
+                            {% endif %}
+                        </small>
+                    </p>
+                    <a href="{% url 'cliente-detail' cliente.pk %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> Ver Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay clientes registrados
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">Primera</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

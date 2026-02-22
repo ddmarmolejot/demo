@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-inbox"></i> Cajas NAP</h1>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Mufa</th>
+                        <th>Cap. Total</th>
+                        <th>Puertos Libres</th>
+                        <th>Coordenadas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nap in cajas_nap %}
+                        <tr>
+                            <td>{{ nap.nombre }}</td>
+                            <td>{{ nap.mufa.nombre }}</td>
+                            <td><span class="badge badge-primary">{{ nap.puertos_capacidad }}</span></td>
+                            <td>
+                                {% if nap.puertos_libres > 0 %}
+                                    <span class="badge badge-success">{{ nap.puertos_libres }}</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Llena</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ nap.lat }}, {{ nap.lon }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No hay cajas NAP registradas</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">Primera</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

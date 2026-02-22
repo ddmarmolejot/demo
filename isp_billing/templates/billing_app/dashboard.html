@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+
+    .dash-hero {
+        background:
+            radial-gradient(1200px 400px at -10% -40%, rgba(0, 122, 255, 0.25), transparent 60%),
+            radial-gradient(900px 320px at 120% -20%, rgba(34, 197, 94, 0.18), transparent 55%),
+            linear-gradient(120deg, rgba(15, 23, 42, 0.04), rgba(148, 163, 184, 0.08));
+        border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .dash-title {
+        font-family: 'Space Grotesk', sans-serif;
+        letter-spacing: -0.02em;
+    }
+
+    .stat-card {
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        animation: riseIn 0.6s ease both;
+        animation-delay: var(--delay, 0ms);
+    }
+
+    .stat-kicker {
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.8rem;
+    }
+
+    .stat-pill {
+        font-size: 0.75rem;
+        background: rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 999px;
+        padding: 6px 12px;
+    }
+
+    @keyframes riseIn {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm dash-hero">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold mb-1 dash-title"><i class="fas fa-chart-line me-2 text-primary"></i>Panel de Control</h2>
+                    <p class="text-muted mb-0">Panorama rapido del flujo de caja y estado operativo.</p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="stat-pill">Hoy: S/ {{ pagos_hoy|floatformat:2 }}</span>
+                        <span class="stat-pill">Semana: S/ {{ pagos_semana|floatformat:2 }}</span>
+                        <span class="stat-pill">Mes: S/ {{ pagos_mes|floatformat:2 }}</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3 mt-md-0">
+                    <a href="{% url 'cliente-crear' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo Cliente
+                    </a>
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-search me-2"></i>Buscar Cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 0ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">Clientes activos</p>
+                        <div class="stat-value">{{ clientes_activos }}</div>
+                        <small class="text-muted">Total: {{ total_clientes }}</small>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 60ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">Planes activos</p>
+                        <div class="stat-value">{{ total_planes }}</div>
+                        <small class="text-muted">Solo activos</small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 120ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">OT pendientes</p>
+                        <div class="stat-value">{{ ots_pendientes }}</div>
+                        <small class="text-muted">En proceso</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-screwdriver-wrench"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 180ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">OT completadas</p>
+                        <div class="stat-value">{{ ots_completadas }}</div>
+                        <small class="text-muted">Pagadas: {{ ots_pagadas }}</small>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 240ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">Ingresos mes</p>
+                        <div class="stat-value">S/ {{ pagos_mes|floatformat:2 }}</div>
+                        <small class="text-muted">Semana: S/ {{ pagos_semana|floatformat:2 }}</small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 300ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">Egresos mes</p>
+                        <div class="stat-value">S/ {{ egresos_mes|floatformat:2 }}</div>
+                        <small class="text-muted">Gastos del mes</small>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm stat-card" style="--delay: 360ms;">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-secondary small fw-bold text-uppercase mb-1 stat-kicker">Balance mes</p>
+                        <div class="stat-value">S/ {{ balance_mes|floatformat:2 }}</div>
+                        <small class="text-muted">Ingresos - egresos</small>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-scale-balanced"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4 g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header border-0 bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-user-clock me-2 text-primary"></i>Ultimos clientes</h5>
+                <span class="badge bg-primary bg-opacity-10 text-primary">Ultimos 5</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>DNI</th>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in ultimos_clientes %}
+                        <tr>
+                            <td><span class="badge bg-light text-dark border">{{ c.dni }}</span></td>
+                            <td class="fw-medium">{{ c.apellidos }}, {{ c.nombres }}</td>
+                            <td>{{ c.fecha_registro|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">No hay clientes registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-receipt me-2 text-success"></i>Ultimos pagos</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for pago in ultimos_pagos %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="fw-semibold">{{ pago.cliente }}</div>
+                                <small class="text-muted">{{ pago.tipo_comprobante }} {{ pago.serie_numero }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-semibold">S/ {{ pago.monto|floatformat:2 }}</div>
+                                <small class="text-muted">{{ pago.fecha|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted">No hay pagos registrados.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2 text-warning"></i>Accesos rapidos</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'cliente-crear' %}" class="btn btn-outline-primary"><i
+                            class="fas fa-user-plus me-2"></i>Nuevo Cliente</a>
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary"><i
+                            class="fas fa-magnifying-glass me-2"></i>Buscar Cliente</a>
+                    <a href="{% url 'servicio-lista' %}" class="btn btn-outline-info"><i
+                            class="fas fa-sliders me-2"></i>Configurar Servicios</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-tools me-2 text-info"></i>OT recientes</h5>
+                <span class="badge bg-info bg-opacity-10 text-info">Ultimos 5</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Concepto</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ot in ultimas_ots %}
+                        <tr>
+                            <td>#{{ ot.id }}</td>
+                            <td>{{ ot.cliente }}</td>
+                            <td>{{ ot.concepto.nombre }}</td>
+                            <td>
+                                {% if ot.completada %}
+                                <span class="badge bg-success">Completada</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ot.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No hay OTs registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

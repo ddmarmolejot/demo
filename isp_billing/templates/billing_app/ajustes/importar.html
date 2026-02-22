@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-file-import me-2 text-primary"></i>Importar datos
+            </h2>
+            <p class="text-muted mb-0">Disponible solo para rol desarrollador.</p>
+        </div>
+    </div>
+
+    <div class="alert alert-info glass">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-circle-info me-2 mt-1"></i>
+            <div>
+                <div class="fw-semibold">Formato requerido (XLSX)</div>
+                <div class="small text-muted">No reemplaza existentes. Si el DNI ya existe, se omite.</div>
+                <div class="small text-muted mt-1">
+                    Columnas: DNI, Apellidos, Nombres, Celular, Distrito, Sector, Via, Estado (activo/inactivo), Fecha instalacion.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if import_error %}
+    <div class="alert alert-danger glass">
+        <i class="fas fa-triangle-exclamation me-2"></i>{{ import_error }}
+    </div>
+    {% endif %}
+
+    {% if import_summary %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Filas leidas</div>
+                    <div class="fs-4 fw-bold">{{ import_summary.total }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Creados</div>
+                    <div class="fs-4 fw-bold text-success">{{ import_summary.created }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Omitidos</div>
+                    <div class="fs-4 fw-bold text-warning">{{ import_summary.skipped }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Errores</div>
+                    <div class="fs-4 fw-bold text-danger">{{ import_summary.errors }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if import_errors %}
+    <div class="card mb-4">
+        <div class="card-header">Detalle de errores</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Fila</th>
+                            <th>Errores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in import_errors %}
+                        <tr>
+                            <td>{{ item.row }}</td>
+                            <td>{{ item.errors|join:", " }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Clientes con calles</div>
+                <div class="card-body">
+                    <p class="text-muted">Carga masiva con Distrito, Sector y Via.</p>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input class="form-control" type="file" name="clientes_xlsx" accept=".xlsx">
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-upload me-2"></i>Importar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Planes</div>
+                <div class="card-body">
+                    <p class="text-muted">Carga masiva de planes y servicios.</p>
+                    <button class="btn btn-outline-primary" disabled>
+                        <i class="fas fa-upload me-2"></i>Subir archivo
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Deudas</div>
+                <div class="card-body">
+                    <p class="text-muted">Importacion de deudas y saldos pendientes.</p>
+                    <button class="btn btn-outline-primary" disabled>
+                        <i class="fas fa-upload me-2"></i>Subir archivo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

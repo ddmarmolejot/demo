@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - ISP Management System{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard Principal</h1>
+        <small class="text-muted">Bienvenido al Sistema de Gestión Integral ISP 2026</small>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">{{ total_clientes }}</div>
+            <div class="stat-label">Total Clientes</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">{{ clientes_activos }}</div>
+            <div class="stat-label">Clientes Activos</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">{{ total_servicios }}</div>
+            <div class="stat-label">Servicios Instalados</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">S/. {{ total_ingresos }}</div>
+            <div class="stat-label">Ingresos Totales</div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas Secundarias -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">{{ total_personal }}</div>
+            <div class="stat-label">Personal Total</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card">
+            <div class="stat-number">{{ total_sedes }}</div>
+            <div class="stat-label">Sedes</div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="btn-group d-flex flex-wrap gap-2">
+                    <a href="{% url 'cliente-create' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Nuevo Cliente
+                    </a>
+                    <a href="{% url 'servicio-create' %}" class="btn btn-success">
+                        <i class="fas fa-plug"></i> Instalar Servicio
+                    </a>
+                    <a href="{% url 'pago-create' %}" class="btn btn-warning">
+                        <i class="fas fa-money-bill"></i> Registrar Pago
+                    </a>
+                    <a href="{% url 'plan-create' %}" class="btn btn-info">
+                        <i class="fas fa-list"></i> Nuevo Plan
+                    </a>
+                    <a href="{% url 'reportes' %}" class="btn btn-secondary">
+                        <i class="fas fa-chart-line"></i> Ver Reportes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Últimos Pagos -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Últimos Pagos</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_pagos %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pago in ultimos_pagos %}
+                                    <tr>
+                                        <td>{{ pago.cliente.nombres_completos|truncatewords:3 }}</td>
+                                        <td>S/. {{ pago.monto }}</td>
+                                        <td><span class="badge badge-info">{{ pago.metodo }}</span></td>
+                                        <td>{{ pago.fecha|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'pago-list' %}" class="btn btn-sm btn-primary mt-2">Ver Todos</a>
+                {% else %}
+                    <p class="text-muted">No hay pagos registrados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos Servicios -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-network-wired"></i> Últimas Instalaciones</h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_servicios %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Plan</th>
+                                    <th>Técnico</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for servicio in ultimos_servicios %}
+                                    <tr>
+                                        <td>{{ servicio.cliente.nombres_completos|truncatewords:3 }}</td>
+                                        <td>
+                                            {% if servicio.plan %}
+                                                <span class="badge badge-success">{{ servicio.plan.mbps }}Mbps</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ servicio.tecnico.nombres_apellidos|truncatewords:2 }}</td>
+                                        <td>{{ servicio.fecha_alta|date:"d/m/Y" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'servicio-list' %}" class="btn btn-sm btn-primary mt-2">Ver Todos</a>
+                {% else %}
+                    <p class="text-muted">No hay servicios registrados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Módulos Disponibles -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cube"></i> Módulos del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-map"></i> Módulo Geográfico</h6>
+                                <p class="small text-muted">Gestión de distritos, sectores y vías</p>
+                                <a href="{% url 'distrito-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-building"></i> Infraestructura</h6>
+                                <p class="small text-muted">Sedes, servidores y equipos OLT/EDFA</p>
+                                <a href="{% url 'sede-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-network-wired"></i> Red Externa</h6>
+                                <p class="small text-muted">Fibra, mufas y cajas NAP</p>
+                                <a href="{% url 'mufa-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-users"></i> Comercial</h6>
+                                <p class="small text-muted">Clientes y planes de internet</p>
+                                <a href="{% url 'cliente-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-tools"></i> Servicio Técnico</h6>
+                                <p class="small text-muted">Servicios, materiales e items</p>
+                                <a href="{% url 'servicio-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="fas fa-money-bill"></i> Finanzas</h6>
+                                <p class="small text-muted">Pagos y reportes financieros</p>
+                                <a href="{% url 'pago-list' %}" class="btn btn-sm btn-primary">Acceder</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

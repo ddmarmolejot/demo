@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-eye"></i> {{ sede.nombre_sede }}</h1>
+        <a href="{% url 'sede-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Atrás
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Información General</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nombre:</strong> {{ sede.nombre_sede }}</p>
+                <p><strong>RUC:</strong> {{ sede.ruc }}</p>
+                <p><strong>Número Municipal:</strong> {{ sede.numero_municipal }}</p>
+                <p><strong>Razón Social:</strong> {{ sede.razon_social }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Ubicación</h5>
+            </div>
+            <div class="card-body">
+                {% if sede.via %}
+                    <p><strong>Vía:</strong> {{ sede.via.tipo_via }} {{ sede.via.nombre }}</p>
+                    <p><strong>Sector:</strong> {{ sede.via.sector.nombre }}</p>
+                    <p><strong>Distrito:</strong> {{ sede.via.sector.distrito.nombre }}</p>
+                {% else %}
+                    <p class="text-muted">No hay ubicación registrada</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Equipos OLT/EDFA ({{ sede.equipos_olt_edfa.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if sede.equipos_olt_edfa.all %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo</th>
+                                    <th>Modelo</th>
+                                    <th>IP Gestión</th>
+                                    <th>Puertos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for equipo in sede.equipos_olt_edfa.all %}
+                                    <tr>
+                                        <td>{{ equipo.nombre }}</td>
+                                        <td><span class="badge badge-success">{{ equipo.tipo_equipo }}</span></td>
+                                        <td>{{ equipo.marca_modelo }}</td>
+                                        <td>{{ equipo.ip_gestion }}</td>
+                                        <td>{{ equipo.puertos_pon_total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay equipos registrados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

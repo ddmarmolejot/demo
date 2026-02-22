@@ -1,0 +1,489 @@
+<!-- Modal de Pago Reutilizable -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content border-0 shadow-lg glass">
+            <div class="modal-header border-0 bg-success text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-cash-register me-2"></i>Realizar Pago - <span
+                        id="nombreClienteModal">Cliente</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">TIPO DE COMPROBANTE</label>
+                        <select id="tipoComprobante" class="form-select form-select-lg border-0 bg-light">
+                            <option value="RECIBO">Recibo Interno</option>
+                            <option value="BOLETA">Boleta de Venta</option>
+                            <option value="FACTURA">Factura</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">FOLIO / NÚMERO</label>
+                        <input type="text" id="numeroProximo"
+                            class="form-control form-control-lg bg-light fw-bold border-0" readonly
+                            placeholder="Cargando...">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">PLAN A ADELANTAR</label>
+                        <select id="adelantoPlanSelect" class="form-select form-select-lg border-0 bg-light">
+                            <option value="">Selecciona un plan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-primary btn-lg w-100" id="btnAddAdelanto">
+                            <i class="fas fa-calendar-plus me-2"></i>Adelantar Mes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-none bg-light bg-opacity-50 rounded-4 mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3 d-flex justify-content-between">
+                            <span>Detalle de Cobros Seleccionados</span>
+                            <span class="text-muted small">Haz clic en el monto para editarlo</span>
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="tablaDeuda">
+                                <thead>
+                                    <tr class="text-muted small text-uppercase">
+                                        <th style="width: 120px;" class="text-center">Acciones</th>
+                                        <th>Concepto / Período</th>
+                                        <th class="text-end">Monto Sugerido</th>
+                                        <th style="width: 180px;" class="text-center">A Pagar</th>
+                                        <th>Observación</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaDeudaMbody">
+                                    <!-- Se llena dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row align-items-center justify-content-end">
+                    <div class="col-md-3 text-end">
+                        <h5 class="mb-0 fw-bold">TOTAL A COBRAR:</h5>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span
+                                class="input-group-text border-0 bg-success text-white py-3 px-4 rounded-start-4">S/</span>
+                            <input type="text" id="totalPagarInput"
+                                class="form-control form-control-lg text-end fw-bold fs-2 text-success border-0 bg-light rounded-end-4"
+                                value="0.00" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-light bg-opacity-50 py-3">
+                <button type="button" class="btn btn-link text-muted px-4 text-decoration-none"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarPago" class="btn btn-success btn-lg px-5 rounded-3 shadow-sm"
+                    disabled>
+                    <i class="fas fa-check-circle me-2"></i> Procesar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Éxito (Mantenemos la estructura pero pulimos el estilo si es necesario) -->
+<div class="modal fade" id="modalExito" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 glass rounded-4">
+            <div class="modal-body text-center py-5">
+                <div class="mb-4">
+                    <div class="bg-success bg-opacity-10 d-inline-block p-4 rounded-circle mb-3">
+                        <i class="fas fa-check-circle text-success fa-5x"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold fs-2">¡Pago Exitoso!</h3>
+                <p class="text-secondary px-4">El comprobante <strong id="resNumeroComp" class="text-dark"></strong> se
+                    ha registrado y aplicado correctamente.</p>
+
+                <div class="d-grid gap-2 mt-4 px-4">
+                    <a href="#" id="linkPrint" target="_blank" class="btn btn-dark btn-lg rounded-3 shadow">
+                        <i class="fas fa-print me-2"></i>Imprimir Recibo
+                    </a>
+                    <a href="#" id="linkWA" target="_blank" class="btn btn-success btn-lg rounded-3 shadow">
+                        <i class="fab fa-whatsapp me-2"></i>Enviar a WhatsApp
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary btn-lg rounded-3 mt-2"
+                        onclick="location.reload()">Finalizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        let currentClienteId = null;
+        let currentCorrelativos = {};
+        let paymentModal;
+        let successModal;
+        let itemsDeuda = [];
+        let planesActivos = [];
+
+        $(document).ready(function () {
+            paymentModal = new bootstrap.Modal(document.getElementById('modalPago'));
+            successModal = new bootstrap.Modal(document.getElementById('modalExito'));
+
+            // Botón de pagar: delegado en document (script corre después de jQuery en base.html)
+            $(document).on('click', '.btn-pagar', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                currentClienteId = btn.attr('data-id');
+                if (!currentClienteId) return;
+
+                // Buscar nombre: fila de tabla (lista clientes) o título (detalle cliente)
+                let nombre = btn.closest('tr').find('td strong').first().text().trim();
+                if (!nombre) nombre = $('h2.fw-bold').first().text().trim();
+                if (!nombre) nombre = "Cliente";
+
+                $("#nombreClienteModal").text(nombre.trim());
+                cargarDeuda();
+            });
+
+            $("#tipoComprobante").change(function () {
+                const tipo = $(this).val();
+                $("#numeroProximo").val(currentCorrelativos[tipo] || 'S/N');
+            });
+
+            $("#btnConfirmarPago").click(procesarPagoFinal);
+
+            $("#btnAddAdelanto").click(function () {
+                agregarMesAdelanto();
+            });
+        });
+
+        function cargarDeuda() {
+            $("#listaDeudaMbody").html('<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-success"></div><div class="mt-2 small text-muted">Consultando estado...</div></td></tr>');
+            $("#totalPagarInput").val("0.00");
+            $("#btnConfirmarPago").prop('disabled', true);
+
+            fetch(`/api/deuda/${currentClienteId}/`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al cargar la deuda');
+                    return res.json();
+                })
+                .then(data => {
+                    currentCorrelativos = data.correlativos || {};
+                    const tipoAct = $("#tipoComprobante").val();
+                    $("#numeroProximo").val(currentCorrelativos[tipoAct] || 'S/N');
+
+                    itemsDeuda = (data.items || []).map(item => ({
+                        ...item,
+                        selected: item.selected !== false,
+                        monto: item.monto != null ? item.monto : item.monto_original
+                    }));
+                    planesActivos = data.planes || [];
+                    renderPlanesAdelanto();
+                    renderTabla();
+                    paymentModal.show();
+                })
+                .catch(err => {
+                    $("#listaDeudaMbody").html('<tr><td colspan="6" class="text-center py-5 text-danger">No se pudo cargar la deuda. Inicia sesión o recarga la página.</td></tr>');
+                    paymentModal.show();
+                });
+        }
+
+        function renderTabla() {
+            let html = '';
+            itemsDeuda.forEach((item, index) => {
+                const checked = item.selected ? 'checked' : '';
+                const rowClass = item.exonerado ? 'table-warning' : (item.selected ? 'table-light' : '');
+                html += `
+                    <tr class="item-deuda align-middle ${rowClass}">
+                        <td>
+                            <input type="checkbox" class="check-mes form-check-input" 
+                                   style="width: 22px; height: 22px"
+                                   ${checked} onchange="toggleItemSelection(${index})" ${item.exonerado ? 'disabled' : ''}>
+                        </td>
+                        <td>
+                            <div class="fw-bold">${item.plan_nombre}</div>
+                            <span class="badge ${item.tipo === 'OT' ? 'bg-warning' : 'bg-info'} bg-opacity-10 text-dark border-0 small">
+                                ${item.mes_nombre || 'Orden Técnica'}
+                            </span>
+                        </td>
+                        <td class="text-end text-muted small">S/ ${parseFloat(item.monto_original).toFixed(2)}</td>
+                        <td>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-0 small">S/</span>
+                                <input type="number" step="0.01" class="form-control monto-item fw-bold border-0 bg-white" 
+                                    style="font-size: 1.1rem"
+                                    value="${item.monto}" 
+                                    onchange="updateItemMonto(${index}, this.value)" 
+                                    ${!item.selected || item.exonerado ? 'disabled' : ''}>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm border-0 bg-white opacity-75" 
+                                placeholder="Nota..." value="${item.nota || ''}"
+                                onchange="updateItemNota(${index}, this.value)"
+                                ${!item.selected || item.exonerado ? 'disabled' : ''}>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm ${item.exonerado ? 'btn-warning' : 'btn-outline-warning'}" 
+                                    onclick="toggleExonerar(${index})">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                ${item.is_new ? `<button class="btn btn-sm text-danger" onclick="removerItem(${index})"><i class="fas fa-times"></i></button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            $("#listaDeudaMbody").html(html || '<tr><td colspan="6" class="text-center py-5 fw-medium text-muted">No hay deudas pendientes. ¿Deseas adelantar un mes?</td></tr>');
+            recalcTotalPayment();
+        }
+
+        function renderPlanesAdelanto() {
+            const select = document.getElementById('adelantoPlanSelect');
+            if (!select) return;
+            let planes = Array.isArray(planesActivos) ? planesActivos.slice() : [];
+            if (planes.length === 0) {
+                const unique = new Map();
+                itemsDeuda.forEach(i => {
+                    if ((i.tipo || '').toUpperCase() === 'PLAN' && i.plan_id) {
+                        unique.set(String(i.plan_id), {
+                            id: i.plan_id,
+                            nombre: i.plan_nombre,
+                            precio: i.monto_original
+                        });
+                    }
+                });
+                planes = Array.from(unique.values());
+            }
+            select.innerHTML = '<option value="">Selecciona un plan</option>';
+            planes.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.nombre;
+                select.appendChild(opt);
+            });
+            select.disabled = planes.length === 0;
+        }
+
+        window.toggleItemSelection = function (index) {
+            itemsDeuda[index].selected = !itemsDeuda[index].selected;
+            if (itemsDeuda[index].selected && !itemsDeuda[index].monto) {
+                itemsDeuda[index].monto = itemsDeuda[index].monto_original;
+            }
+            renderTabla();
+        };
+
+        window.updateItemMonto = function (index, val) {
+            itemsDeuda[index].monto = parseFloat(val) || 0;
+            recalcTotalPayment();
+        };
+
+        window.updateItemNota = function (index, val) {
+            itemsDeuda[index].nota = val;
+        };
+
+        window.recalcTotalPayment = function () {
+            let total = 0;
+            let exonerados = 0;
+            itemsDeuda.forEach(item => {
+                if (item.exonerado) {
+                    exonerados += 1;
+                    return;
+                }
+                if (item.selected) {
+                    total += parseFloat(item.monto) || 0;
+                }
+            });
+            $("#totalPagarInput").val(total.toFixed(2));
+            $("#btnConfirmarPago").prop(
+                'disabled',
+                total <= 0 && exonerados <= 0
+            );
+        };
+
+        window.toggleExonerar = function (index) {
+            itemsDeuda[index].exonerado = !itemsDeuda[index].exonerado;
+            if (itemsDeuda[index].exonerado) {
+                itemsDeuda[index].selected = false;
+                itemsDeuda[index].monto = 0;
+            }
+            renderTabla();
+        };
+
+        function agregarMesAdelanto() {
+            const select = document.getElementById('adelantoPlanSelect');
+            const selectedPlanId = select ? select.value : '';
+            let planInfo = null;
+            if (selectedPlanId) {
+                planInfo = (planesActivos || []).find(
+                    p => String(p.id) === String(selectedPlanId)
+                );
+            }
+            if (!planInfo) {
+                const fallback = itemsDeuda.find(
+                    i => (i.tipo || '').toUpperCase() === 'PLAN'
+                );
+                if (fallback) {
+                    planInfo = {
+                        id: fallback.plan_id,
+                        nombre: fallback.plan_nombre,
+                        precio: fallback.monto_original
+                    };
+                }
+            }
+            if (!planInfo || !planInfo.id) {
+                alert('No hay planes disponibles para adelantar.');
+                return;
+            }
+
+            // Buscamos el último mes registrado o adelantado para el plan
+            let baseDate = new Date();
+            itemsDeuda.forEach(item => {
+                if (
+                    item.mes_iso
+                    && String(item.plan_id) === String(planInfo.id)
+                ) {
+                    let d = new Date(item.mes_iso + "T00:00:00");
+                    if (d > baseDate) baseDate = d;
+                }
+            });
+
+            // Sumamos un mes
+            baseDate.setMonth(baseDate.getMonth() + 1);
+            baseDate.setDate(1);
+
+            const mesISO = baseDate.toISOString().split('T')[0];
+            const mesNombre = baseDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+            const planBase = {
+                plan_id: planInfo.id,
+                plan_nombre: planInfo.nombre,
+                monto_original: planInfo.precio || 0
+            };
+
+            const exists = itemsDeuda.some(
+                i =>
+                    String(i.plan_id) === String(planBase.plan_id)
+                    && String(i.mes_iso) === String(mesISO)
+                    && (i.tipo || '').toUpperCase() === 'PLAN'
+            );
+            if (exists) {
+                itemsDeuda.forEach((i, idx) => {
+                    if (
+                        String(i.plan_id) === String(planBase.plan_id)
+                        && String(i.mes_iso) === String(mesISO)
+                        && (i.tipo || '').toUpperCase() === 'PLAN'
+                    ) {
+                        itemsDeuda[idx].selected = true;
+                    }
+                });
+                renderTabla();
+                return;
+            }
+
+            itemsDeuda.push({
+                plan_id: planBase.plan_id,
+                plan_nombre: planBase.plan_nombre,
+                mes_iso: mesISO,
+                mes_nombre: mesNombre,
+                monto: planBase.monto_original,
+                monto_original: planBase.monto_original,
+                tipo: 'PLAN',
+                selected: true,
+                is_new: true,
+                nota: 'Mes adelantado'
+            });
+            renderTabla();
+        }
+
+        window.removerItem = function (index) {
+            itemsDeuda.splice(index, 1);
+            renderTabla();
+        };
+
+        function procesarPagoFinal() {
+            const items = [];
+            let resumen = "";
+
+            const exonerados = [];
+
+            itemsDeuda.forEach(item => {
+                if (item.exonerado) {
+                    exonerados.push({
+                        plan_id: item.plan_id,
+                        mes_iso: item.mes_iso,
+                        tipo: item.tipo,
+                        nota: item.nota || 'Exonerado'
+                    });
+                    return;
+                }
+                if (item.selected) {
+                    items.push({
+                        plan_id: item.plan_id,
+                        mes_iso: item.mes_iso,
+                        tipo: item.tipo,
+                        monto_pagar: item.monto,
+                        nota: item.nota || `Pago ${item.mes_nombre || 'Servicio'}`
+                    });
+                    resumen += `${item.mes_nombre || item.plan_nombre} (S/ ${item.monto}), `;
+                }
+            });
+
+            const payload = {
+                cliente_id: currentClienteId,
+                tipo_comprobante: $("#tipoComprobante").val(),
+                monto_total: parseFloat($("#totalPagarInput").val()),
+                items_pagados: items,
+                items_exonerados: exonerados,
+                resumen_detalles: resumen.slice(0, -2)
+            };
+
+            const btn = $("#btnConfirmarPago");
+            const originalHtml = btn.html();
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> PROCESANDO...');
+
+            fetch('/api/pago/procesar/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json().then(data => ({ data, ok: res.ok, status: res.status })))
+                .then(({ data, ok, status }) => {
+                    if (ok && data.status === 'success') {
+                        paymentModal.hide();
+                        if (data.pago_id && data.numero) {
+                            $("#resNumeroComp").text(data.numero);
+                            $("#linkPrint").attr('href', `/pago/${data.pago_id}/pdf/`);
+                        } else {
+                            $("#resNumeroComp").text('EXONERADO');
+                            $("#linkPrint").attr('href', '#');
+                            $("#linkWA").attr('href', '#');
+                        }
+
+                        let tel = '';
+                        const telText = $('.text-primary.fw-bold').text();
+                        if (telText) tel = telText.replace(/\D/g, '');
+
+                        if (data.pago_id && data.numero) {
+                            const msg = `🧾 *PAGO REGISTRADO*\n\nHola! Se ha registrado el pago de S/ ${payload.monto_total.toFixed(2)} con el comprobante *${data.numero}*.\n\nPuedes ver tu recibo aquí:\n${window.location.origin}/pago/${data.pago_id}/pdf/\n\nGracias por su preferencia.`;
+                            $("#linkWA").attr('href', `https://wa.me/51${tel}?text=${encodeURIComponent(msg)}`);
+                        }
+
+                        successModal.show();
+                    } else {
+                        alert('Error: ' + (data.message || 'No se pudo procesar el pago'));
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                })
+                .catch(err => {
+                    alert('Error de conexión. Verifica tu sesión e intenta de nuevo.');
+                    btn.prop('disabled', false).html(originalHtml);
+                });
+        }
+    })();
+</script>

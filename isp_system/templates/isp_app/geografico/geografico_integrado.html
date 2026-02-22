@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}Módulo Geográfico{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="page-title">
+                <i class="fas fa-map-marked-alt"></i> Módulo Geográfico
+            </h1>
+            <p class="text-muted">Gestión integral de Distritos, Sectores y Vías</p>
+        </div>
+    </div>
+
+    <!-- Tabs de navegación -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link {% if tab_activo == 'distritos' %}active{% endif %}" 
+                       data-bs-toggle="tab" href="#tab-distritos" role="tab">
+                        <i class="fas fa-city"></i> Distritos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if tab_activo == 'sectores' %}active{% endif %}" 
+                       data-bs-toggle="tab" href="#tab-sectores" role="tab">
+                        <i class="fas fa-th"></i> Sectores
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if tab_activo == 'vias' %}active{% endif %}" 
+                       data-bs-toggle="tab" href="#tab-vias" role="tab">
+                        <i class="fas fa-road"></i> Vías
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Contenido de tabs -->
+    <div class="tab-content">
+        <!-- Tab DISTRITOS -->
+        <div class="tab-pane {% if tab_activo == 'distritos' %}active{% endif %}" id="tab-distritos">
+            <div class="row">
+                <!-- Formulario crear -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Crear Nuevo Distrito</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="tab" value="distritos">
+                                
+                                <div class="mb-3">
+                                    <label for="{{ distrito_form.nombre.id_for_label }}" class="form-label">
+                                        <strong>Nombre del Distrito</strong>
+                                    </label>
+                                    {{ distrito_form.nombre }}
+                                    {% if distrito_form.nombre.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ distrito_form.nombre.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-save"></i> Crear Distrito
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listado -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-list"></i> Distritos Registrados ({{ distritos.count }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if distritos %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Sectores</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for distrito in distritos %}
+                                                <tr>
+                                                    <td><span class="badge bg-secondary">{{ distrito.id }}</span></td>
+                                                    <td><strong>{{ distrito.nombre }}</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-info">{{ distrito.sectores.count }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'distrito-detail' distrito.id %}" 
+                                                           class="btn btn-sm btn-info" title="Ver detalle">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{% url 'distrito-update' distrito.id %}" 
+                                                           class="btn btn-sm btn-warning" title="Editar">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{% url 'distrito-delete' distrito.id %}" 
+                                                           class="btn btn-sm btn-danger" title="Eliminar"
+                                                           onclick="return confirm('¿Seguro?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle"></i> No hay distritos registrados
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab SECTORES -->
+        <div class="tab-pane {% if tab_activo == 'sectores' %}active{% endif %}" id="tab-sectores">
+            <div class="row">
+                <!-- Formulario crear -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Crear Nuevo Sector</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="tab" value="sectores">
+                                
+                                <div class="mb-3">
+                                    <label for="{{ sector_form.distrito.id_for_label }}" class="form-label">
+                                        <strong>Distrito</strong>
+                                    </label>
+                                    {{ sector_form.distrito }}
+                                    {% if sector_form.distrito.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ sector_form.distrito.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ sector_form.nombre.id_for_label }}" class="form-label">
+                                        <strong>Nombre del Sector</strong>
+                                    </label>
+                                    {{ sector_form.nombre }}
+                                    {% if sector_form.nombre.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ sector_form.nombre.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-save"></i> Crear Sector
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listado -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-list"></i> Sectores Registrados ({{ sectores.count }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if sectores %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Distrito</th>
+                                                <th>Nombre</th>
+                                                <th>Vías</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for sector in sectores %}
+                                                <tr>
+                                                    <td><span class="badge bg-secondary">{{ sector.id }}</span></td>
+                                                    <td><strong>{{ sector.distrito.nombre }}</strong></td>
+                                                    <td>{{ sector.nombre }}</td>
+                                                    <td>
+                                                        <span class="badge bg-warning">{{ sector.vias.count }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'sector-list' %}" 
+                                                           class="btn btn-sm btn-info" title="Ver">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle"></i> No hay sectores registrados
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab VÍAS -->
+        <div class="tab-pane {% if tab_activo == 'vias' %}active{% endif %}" id="tab-vias">
+            <div class="row">
+                <!-- Formulario crear -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Crear Nueva Vía</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="tab" value="vias">
+                                
+                                <div class="mb-3">
+                                    <label for="{{ via_form.sector.id_for_label }}" class="form-label">
+                                        <strong>Sector</strong>
+                                    </label>
+                                    {{ via_form.sector }}
+                                    {% if via_form.sector.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ via_form.sector.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ via_form.tipo_via.id_for_label }}" class="form-label">
+                                        <strong>Tipo de Vía</strong>
+                                    </label>
+                                    {{ via_form.tipo_via }}
+                                    {% if via_form.tipo_via.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ via_form.tipo_via.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ via_form.nombre.id_for_label }}" class="form-label">
+                                        <strong>Nombre de la Vía</strong>
+                                    </label>
+                                    {{ via_form.nombre }}
+                                    {% if via_form.nombre.errors %}
+                                        <div class="alert alert-danger mt-2 py-1">
+                                            {{ via_form.nombre.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-warning w-100 text-dark">
+                                    <i class="fas fa-save"></i> Crear Vía
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Listado -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-list"></i> Vías Registradas ({{ vias.count }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if vias %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tipo</th>
+                                                <th>Nombre</th>
+                                                <th>Sector</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for via in vias %}
+                                                <tr>
+                                                    <td><span class="badge bg-secondary">{{ via.id }}</span></td>
+                                                    <td><span class="badge bg-primary">{{ via.tipo_via }}</span></td>
+                                                    <td><strong>{{ via.nombre }}</strong></td>
+                                                    <td>{{ via.sector.nombre }}</td>
+                                                    <td>
+                                                        <a href="{% url 'via-list' %}" 
+                                                           class="btn btn-sm btn-info" title="Ver">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle"></i> No hay vías registradas
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 30px;
+    }
+
+    .nav-link {
+        color: #6c757d;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+        color: #495057;
+        border-bottom-color: #0d6efd;
+    }
+
+    .nav-link.active {
+        color: #0d6efd;
+        border-bottom-color: #0d6efd;
+        background-color: transparent;
+    }
+
+    .card {
+        border: none;
+        border-top: 4px solid #0d6efd;
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        border-radius: 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .page-title {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}

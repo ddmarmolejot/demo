@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Mikrotik & Red</h2>
+        <p class="text-muted small">Configure sus equipos y pools de IPs para automatización.</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a class="btn btn-outline-info shadow-sm me-2" href="{% url 'mikrotik-sync' %}">
+            <i class="fas fa-sync me-2"></i>Sincronizar
+        </a>
+        <button class="btn btn-primary shadow-sm btn-open-panel" data-title="Nuevo Mikrotik"
+            data-url="{% url 'mikrotik-crear' %}">
+            <i class="fas fa-plus me-2"></i>Añadir Nodo
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for config in configs %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-server me-2 text-primary"></i>{{ config.nombre }}
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown"><i
+                            class="fas fa-ellipsis-v"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><button class="dropdown-item btn-open-panel" data-title="Editar Mikrotik"
+                                data-url="{% url 'mikrotik-editar' config.pk %}"><i class="fas fa-edit me-2"></i>Editar
+                                Configuración</button></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'mikrotik-eliminar' config.pk %}"
+                                onclick="return confirm('¿Eliminar configuración?')"><i
+                                    class="fas fa-trash me-2"></i>Eliminar</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="small text-muted mb-1">Host / IP</div>
+                    <div class="fw-bold fs-5 text-primary">{{ config.ip_host }}</div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input js-mikrotik-switch" type="checkbox" disabled
+                                {% if config.id|stringformat:"s" in connected_ids %}checked{% endif %}>
+                            <label class="form-check-label">Conexion</label>
+                        </div>
+                        <span class="badge {% if config.id|stringformat:"s" in connected_ids %}bg-success{% else %}bg-secondary{% endif %} js-mikrotik-status">
+                            {% if config.id|stringformat:"s" in connected_ids %}Conectado{% else %}Sin verificar{% endif %}
+                        </span>
+                    </div>
+                    <div class="small text-muted mt-2 js-mikrotik-info"></div>
+                    <form class="mikrotik-status-form mt-2" data-status-url="{% url 'mikrotik-status' config.pk %}">
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm">
+                            <input type="password" class="form-control" name="password"
+                                placeholder="Clave API">
+                            <button type="button" class="btn btn-outline-success js-mikrotik-check">
+                                Verificar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="mb-3">
+                    <div class="small text-muted mb-2">Trafico PPPoE en vivo</div>
+                    <form class="mikrotik-traffic-form" data-traffic-url="{% url 'mikrotik-traffic' config.pk %}">
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="text" class="form-control" name="username" placeholder="Usuario PPPoE">
+                            <input type="text" class="form-control" name="profile" placeholder="Perfil (opcional)">
+                            <button type="button" class="btn btn-outline-primary js-mikrotik-traffic">Ver</button>
+                        </div>
+                    </form>
+                    <div class="small js-mikrotik-traffic-info" style="white-space: pre-line;"></div>
+                </div>
+                <div class="d-flex justify-content-between mb-3 small">
+                    <span>Estado: <span class="badge {% if config.activo %}bg-success{% else %}bg-danger{% endif %}">{{ config.activo|yesno:"Online,Offline" }}</span></span>
+                    <span>Puerto API: <strong>{{ config.puerto_api }}</strong></span>
+                </div>
+                <hr>
+                <h6 class="fw-bold small mb-2"><i class="fas fa-layer-group me-1"></i>IP Pools</h6>
+                <div class="list-group list-group-flush mb-3">
+                    {% for pool in config.pools.all %}
+                    <div class="list-group-item px-0 py-1 border-0 small d-flex justify-content-between">
+                        <span>{{ pool.nombre }}</span>
+                        <span class="text-muted">{{ pool.rango }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-muted small fst-italic py-2">Sin pools registrados.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer bg-light bg-opacity-50 border-0 p-3">
+                <button class="btn btn-sm btn-outline-info w-100 py-2"
+                    onclick="alert('Pruebe la conexión con el botón de Dashboard')">
+                    <i class="fas fa-plug me-1"></i>Añadir IP Pool
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted">No hay equipos Mikrotik configurados.</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    function mikrotikFormatInfo(data) {
+        const parts = [];
+        if (data.identity) parts.push(`Nombre: ${data.identity}`);
+        if (data.model) parts.push(`Modelo: ${data.model}`);
+        if (data.version) parts.push(`RouterOS: ${data.version}`);
+        if (data.uptime) parts.push(`Uptime: ${data.uptime}`);
+        return parts.join(' | ');
+    }
+
+    document.querySelectorAll('.js-mikrotik-check').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const form = btn.closest('.mikrotik-status-form');
+            if (!form) return;
+            const url = form.getAttribute('data-status-url');
+            const password = form.querySelector('input[name="password"]')?.value || '';
+            const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+            const card = form.closest('.card');
+            const statusBadge = card?.querySelector('.js-mikrotik-status');
+            const infoEl = card?.querySelector('.js-mikrotik-info');
+            const switchEl = card?.querySelector('.js-mikrotik-switch');
+
+            if (!password) {
+                if (statusBadge) {
+                    statusBadge.textContent = 'Clave requerida';
+                    statusBadge.className = 'badge bg-warning text-dark js-mikrotik-status';
+                }
+                return;
+            }
+
+            if (statusBadge) {
+                statusBadge.textContent = 'Verificando...';
+                statusBadge.className = 'badge bg-info js-mikrotik-status';
+            }
+            if (infoEl) infoEl.textContent = '';
+
+            const body = new URLSearchParams();
+            body.append('password', password);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrf
+                },
+                body: body.toString()
+            });
+            const data = await response.json();
+            if (!data.ok) {
+                if (statusBadge) {
+                    statusBadge.textContent = 'Sin conexion';
+                    statusBadge.className = 'badge bg-danger js-mikrotik-status';
+                }
+                if (infoEl) infoEl.textContent = data.error || 'Error de conexion';
+                if (switchEl) switchEl.checked = false;
+                return;
+            }
+            if (statusBadge) {
+                statusBadge.textContent = 'Conectado';
+                statusBadge.className = 'badge bg-success js-mikrotik-status';
+            }
+            if (infoEl) infoEl.textContent = mikrotikFormatInfo(data.data || {});
+            if (switchEl) switchEl.checked = true;
+        });
+    });
+
+    document.querySelectorAll('.js-mikrotik-traffic').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const form = btn.closest('.mikrotik-traffic-form');
+            if (!form) return;
+            const url = form.getAttribute('data-traffic-url');
+            const username = form.querySelector('input[name="username"]')?.value || '';
+            const profile = form.querySelector('input[name="profile"]')?.value || '';
+            const csrf = form.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+            const card = form.closest('.card');
+            const infoEl = card?.querySelector('.js-mikrotik-traffic-info');
+
+            if (infoEl) infoEl.textContent = 'Consultando...';
+
+            const body = new URLSearchParams();
+            body.append('username', username);
+            body.append('profile', profile);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrf
+                },
+                body: body.toString()
+            });
+            const data = await response.json();
+            if (!data.ok) {
+                if (infoEl) infoEl.textContent = data.error || 'Sin datos';
+                return;
+            }
+            if (!data.rows || !data.rows.length) {
+                if (infoEl) infoEl.textContent = 'No hay sesiones activas.';
+                return;
+            }
+            const lines = data.rows.map(row => {
+                return `${row.name} | ${row.profile} | ${row.address} | ${row.uptime} | RX ${row.bytes_in} | TX ${row.bytes_out}`;
+            });
+            if (infoEl) infoEl.textContent = lines.join('\n');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-0">Reportes</h2>
+        <p class="text-muted small">Descargue reportes en Excel para control administrativo.</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Cobranzas</div>
+                <div class="fs-5 fw-bold">S/ {{ ingresos_total|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Egresos</div>
+                <div class="fs-5 fw-bold">S/ {{ egresos_total|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Deuda pendiente</div>
+                <div class="fs-5 fw-bold">S/ {{ deuda_total|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Clientes</div>
+                <div class="fs-5 fw-bold">{{ total_clientes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Instalaciones</div>
+                <div class="fs-5 fw-bold">{{ instalaciones }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Cortes</div>
+                <div class="fs-5 fw-bold">{{ cortes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Averias</div>
+                <div class="fs-5 fw-bold">{{ averias }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">OT completadas</div>
+                <div class="fs-5 fw-bold">{{ ots_completadas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Servicios</div>
+                <div class="fs-5 fw-bold">{{ total_servicios }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Planes</div>
+                <div class="fs-5 fw-bold">{{ total_planes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Nodos</div>
+                <div class="fs-5 fw-bold">{{ total_nodos }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 56px; height: 56px;">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">Ingresos y Egresos</h5>
+                        <small class="text-muted">Pagos + gastos en un solo archivo</small>
+                    </div>
+                </div>
+                <a href="{% url 'reportes-ingresos-egresos' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 56px; height: 56px;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">Clientes</h5>
+                        <small class="text-muted">Datos generales y tecnicos</small>
+                    </div>
+                </div>
+                <a href="{% url 'reportes-clientes' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 56px; height: 56px;">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">Ordenes Tecnicas</h5>
+                        <small class="text-muted">Historial completo de OTs</small>
+                    </div>
+                </div>
+                <a href="{% url 'reportes-ots' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 text-info rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 56px; height: 56px;">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">Clientes con Planes</h5>
+                        <small class="text-muted">Planes activos y fechas clave</small>
+                    </div>
+                </div>
+                <a href="{% url 'reportes-clientes-planes' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 56px; height: 56px;">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">Deuda Pendiente</h5>
+                        <small class="text-muted">Top clientes con deuda</small>
+                    </div>
+                </div>
+                <a href="{% url 'reportes-deuda' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel me-2"></i>Descargar Excel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold">Top Deudores</h6>
+            </div>
+            <div class="card-body">
+                {% if top_deudores %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-end">Deuda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in top_deudores %}
+                            <tr>
+                                <td>{{ row.cliente }}</td>
+                                <td class="text-end">S/ {{ row.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-muted small">Sin deudores pendientes.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold">Clientes con buena reputacion</h6>
+            </div>
+            <div class="card-body">
+                {% if good_clients %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-end">Pagos acumulados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in good_clients %}
+                            <tr>
+                                <td>{{ row.cliente }}</td>
+                                <td class="text-end">S/ {{ row.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-muted small">Aun no hay clientes destacados.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold">Clientes por distrito</h6>
+            </div>
+            <div class="card-body">
+                {% if clientes_por_zona %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Distrito</th>
+                                <th class="text-end">Clientes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for zona in clientes_por_zona %}
+                            <tr>
+                                <td>{{ zona.nombre }}</td>
+                                <td class="text-end">{{ zona.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-muted small">No hay distritos registrados.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold">Clientes por zona</h6>
+            </div>
+            <div class="card-body">
+                {% if zonas_por_sector %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Zona</th>
+                                <th class="text-end">Clientes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for zona in zonas_por_sector %}
+                            <tr>
+                                <td>{{ zona.nombre }}</td>
+                                <td class="text-end">{{ zona.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-muted small">No hay zonas registradas.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h1><i class="fas fa-chart-line"></i> Reportes Generales del Sistema</h1>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Clientes por Estado</h5></div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for estado_item in clientes_por_estado %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ estado_item.estado_cliente }}</span>
+                            <span class="badge badge-primary">{{ estado_item.count }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Servicios por Plan</h5></div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for plan_item in servicios_por_plan %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ plan_item.plan__nombre_plan }}</span>
+                            <span class="badge badge-success">{{ plan_item.count }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Items por Estado</h5></div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for item_estado in items_por_estado %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ item_estado.estado }}</span>
+                            <span class="badge badge-info">{{ item_estado.count }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h5>Ingresos por Mes</h5></div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for mes_item in ingresos_por_mes %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ mes_item.mes }}</span>
+                            <span class="badge badge-success">S/. {{ mes_item.total }}</span>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Acciones</h5>
+            </div>
+            <div class="card-body">
+                <button onclick="printPage()" class="btn btn-info">
+                    <i class="fas fa-print"></i> Imprimir Reportes
+                </button>
+                <a href="{% url 'index' %}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

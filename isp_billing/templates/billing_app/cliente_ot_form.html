@@ -1,0 +1,278 @@
+<div class="row">
+    <div class="col-12">
+        <form id="formNuevaOT" action="{% url 'cliente-crear-ot' cliente.pk %}" method="post" data-ajax="true">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            {% if form.errors and not form.non_field_errors %}
+            <div class="alert alert-danger py-2">
+                {{ form.errors }}
+            </div>
+            {% endif %}
+            <div class="alert alert-warning py-2" id="otFormMessage" style="display:none;"></div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Tipo de trabajo</label>
+                <select id="otTipoTrabajo" name="tipo_trabajo" class="form-select">
+                    <option value="">-- Selecciona un tipo --</option>
+                    {% for code, label in form.fields.tipo_trabajo.choices %}
+                    <option value="{{ code }}"
+                        {% if form.tipo_trabajo.value == code %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if form.tipo_trabajo.errors %}
+                <div class="text-danger small mt-1">{{ form.tipo_trabajo.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Concepto / Servicio Tecnico</label>
+                <select id="otConcepto" name="concepto" class="form-select">
+                    <option value="">-- Selecciona un concepto --</option>
+                    {% regroup conceptos by categoria as conceptos_por_categoria %}
+                    {% for grupo in conceptos_por_categoria %}
+                    <optgroup label="{{ grupo.grouper|title }}" data-categoria="{{ grupo.grouper }}">
+                        {% for c in grupo.list %}
+                        <option value="{{ c.id }}"
+                                data-categoria="{{ c.categoria }}"
+                                {% if form.concepto.value|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>
+                            {{ c.nombre }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </select>
+                {% if form.concepto.errors %}
+                <div class="text-danger small mt-1">{{ form.concepto.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div id="otPlanBlock" class="mb-3" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label id="otPlanLabel" class="form-label fw-bold mb-0">Plan a instalar</label>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddPlanInst">
+                        <i class="fas fa-plus me-1"></i>Anadir plan
+                    </button>
+                </div>
+                <div id="instalacionPlanesContainer"></div>
+                <small class="text-muted d-block mt-2" id="otPlanHint"></small>
+                {% if form.plan_catalogo.errors %}
+                <div class="text-danger small mt-1">{{ form.plan_catalogo.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div id="otServiciosWrapper" class="mb-3" style="display:none;">
+                <label class="form-label fw-bold" id="otServiciosLabel">Planes afectados</label>
+
+                <div id="otPlanMultiBlock" class="mt-2">
+                    <small class="text-muted d-block mb-2" id="otPlanesHint">Planes afectados</small>
+                    <div class="border rounded-3 p-2">
+                        {% for cp in cliente_planes %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="planes_seleccionados"
+                                id="plan_{{ cp.id }}" value="{{ cp.id }}"
+                                {% if not cp.activo %}disabled{% endif %}
+                                {% if form.planes_seleccionados.value and cp.id|stringformat:"s" in form.planes_seleccionados.value %}checked{% endif %}>
+                            <label class="form-check-label" for="plan_{{ cp.id }}">
+                                {{ cp.plan.nombre }}{% if cp.plan.servicio %} ({{ cp.plan.servicio.nombre }}){% endif %}
+                                {% if cp.activo %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success ms-2">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary ms-2">Inactivo</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted small">El cliente no tiene planes activos.</div>
+                        {% endfor %}
+                    </div>
+                    {% if form.planes_seleccionados.errors %}
+                    <div class="text-danger small mt-1">{{ form.planes_seleccionados.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Observacion adicional</label>
+                {{ form.observaciones }}
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="fas fa-save me-2"></i>Registrar OT
+                </button>
+                <button type="button" class="btn btn-light" onclick="closeActionPanel()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleOtBlocks() {
+        const tipo = document.getElementById('otTipoTrabajo');
+        const concepto = document.getElementById('otConcepto');
+        const planBlock = document.getElementById('otPlanBlock');
+        const planMultiBlock = document.getElementById('otPlanMultiBlock');
+        const planLabel = document.getElementById('otPlanLabel');
+        const planHint = document.getElementById('otPlanHint');
+        const serviciosWrapper = document.getElementById('otServiciosWrapper');
+
+        const tipoVal = tipo ? tipo.value : '';
+
+        // Filtrar conceptos por tipo
+        if (concepto) {
+            let firstVisible = null;
+            Array.from(concepto.options).forEach(opt => {
+                if (!opt.value) return;
+                const cat = opt.getAttribute('data-categoria');
+                const show = !tipoVal || cat === tipoVal;
+                opt.hidden = !show;
+                if (show && !firstVisible) firstVisible = opt;
+            });
+            Array.from(concepto.querySelectorAll('optgroup')).forEach(group => {
+                const gcat = group.getAttribute('data-categoria');
+                const showGroup = !tipoVal || gcat === tipoVal;
+                group.hidden = !showGroup;
+            });
+            const hasSelection = concepto.selectedOptions.length;
+            if (hasSelection) {
+                const sel = concepto.selectedOptions[0];
+                if ((sel.hidden || !sel.value) && firstVisible) {
+                    concepto.value = firstVisible.value;
+                }
+            } else if (firstVisible) {
+                concepto.value = firstVisible.value;
+            }
+        }
+
+        if (tipoVal === 'INSTALACION') {
+            serviciosWrapper.style.display = 'none';
+            planBlock.style.display = '';
+            planMultiBlock.style.display = 'none';
+            planLabel.textContent = 'Plan a instalar';
+            planHint.textContent = 'Selecciona el plan a instalar. Puedes anadir uno nuevo si no existe.';
+        } else if (tipoVal === 'CORTES') {
+            serviciosWrapper.style.display = '';
+            planBlock.style.display = 'none';
+            planMultiBlock.style.display = '';
+            planHint.textContent = '';
+            document.getElementById('otPlanesHint').textContent = 'Planes a cortar';
+        } else if (tipoVal === 'AVERIAS') {
+            serviciosWrapper.style.display = '';
+            planBlock.style.display = 'none';
+            planMultiBlock.style.display = '';
+            document.getElementById('otPlanesHint').textContent = 'Planes con averia';
+        } else {
+            serviciosWrapper.style.display = 'none';
+            planBlock.style.display = 'none';
+            planMultiBlock.style.display = 'none';
+        }
+    }
+
+
+    function initOtFormPanel() {
+        const container = document.getElementById('instalacionPlanesContainer');
+        const form = document.getElementById('formNuevaOT');
+        if (container && container.dataset.inited === '1') {
+            toggleOtBlocks();
+            return;
+        }
+        const concepto = document.getElementById('otConcepto');
+        const tipo = document.getElementById('otTipoTrabajo');
+        const planSelect = document.getElementById('otPlanSelect');
+        if (concepto) {
+            concepto.addEventListener('change', function () {
+                const selected = concepto.selectedOptions[0];
+                const categoria = selected?.getAttribute('data-categoria');
+                if (categoria && tipo) {
+                    tipo.value = categoria;
+                }
+                toggleOtBlocks();
+            });
+        }
+        if (tipo) {
+            tipo.addEventListener('change', toggleOtBlocks);
+        }
+        if (planSelect) {
+            planSelect.addEventListener('change', toggleOtBlocks);
+        }
+        initInstalacionPlanes();
+        if (container) {
+            container.dataset.inited = '1';
+        }
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                const tipo = document.getElementById('otTipoTrabajo');
+                const tipoVal = tipo ? tipo.value : '';
+                const msg = document.getElementById('otFormMessage');
+                if (tipoVal === 'CORTES' || tipoVal === 'AVERIAS') {
+                    const checks = form.querySelectorAll(
+                        'input[name="planes_seleccionados"]:checked'
+                    );
+                    if (!checks.length) {
+                        if (msg) {
+                            msg.textContent = 'Selecciona al menos un plan.';
+                            msg.style.display = 'block';
+                        }
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                    }
+                }
+            });
+        }
+        toggleOtBlocks();
+    }
+
+    function initInstalacionPlanes() {
+        const container = document.getElementById('instalacionPlanesContainer');
+        if (!container) return;
+        if (!container.querySelector('select')) {
+            renderInstalacionPlanSelect();
+        }
+        const addBtn = document.getElementById('btnAddPlanInst');
+        if (addBtn) {
+            addBtn.onclick = function () {
+                renderInstalacionPlanSelect();
+            };
+        }
+    }
+
+    function renderInstalacionPlanSelect() {
+        const container = document.getElementById('instalacionPlanesContainer');
+        if (!container) return;
+        const current = container.querySelectorAll('select').length;
+        if (current >= 3) return;
+        const select = document.createElement('select');
+        select.name = 'plan_catalogo';
+        select.className = 'form-select mb-2';
+        const optEmpty = document.createElement('option');
+        optEmpty.value = '';
+        optEmpty.textContent = '-- Selecciona un plan --';
+        select.appendChild(optEmpty);
+        const dataEl = document.getElementById('planesCatalogoData');
+        if (!dataEl) return;
+        const planes = JSON.parse(dataEl.textContent || '[]');
+        planes.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.nombre;
+            select.appendChild(opt);
+        });
+        container.appendChild(select);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOtFormPanel);
+    } else {
+        initOtFormPanel();
+    }
+</script>
+
+<script id="planesCatalogoData" type="application/json">
+    [{% for p in planes_catalogo %}{"id": {{ p.id }}, "nombre": "{{ p.nombre|escapejs }}{% if p.servicio %} ({{ p.servicio.nombre|escapejs }}){% endif %}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+</script>

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0">Conceptos de Orden Técnica</h2>
+        <p class="text-muted small">Configure los cobros adicionales por mantenimiento y servicios.</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-warning shadow-sm btn-open-panel" data-title="Nuevo Concepto OT"
+            data-url="{% url 'ot-concepto-crear' %}">
+            <i class="fas fa-plus me-2"></i>Nuevo Concepto (General)
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for category in grouped_categories %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5
+                    class="mb-0 fw-bold {% if category.code == 'INSTALACION' %}text-primary{% elif category.code == 'AVERIAS' %}text-danger{% else %}text-dark{% endif %}">
+                    <i class="fas fa-tags me-2"></i>{{ category.name }}</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for concepto in category.items %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <div class="fw-bold">{{ concepto.nombre }}</div>
+                            <div class="text-success small fw-bold">S/ {{ concepto.precio_sugerido }}</div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning border-0 btn-open-panel"
+                                data-title="Editar Concepto" data-url="{% url 'ot-concepto-editar' concepto.pk %}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{% url 'ot-concepto-eliminar' concepto.pk %}"
+                                onclick="return confirm('¿Eliminar concepto?')"
+                                class="btn btn-sm btn-outline-danger border-0">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-4 text-center text-muted"><small>Sin conceptos en esta categoría.</small></div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer bg-light bg-opacity-50 border-0 p-3">
+                <button class="btn btn-sm btn-outline-primary w-100 py-2 btn-open-panel"
+                    data-title="Nuevo Concepto: {{ category.name }}"
+                    data-url="{% url 'ot-concepto-crear' %}?cat={{ category.code }}">
+                    <i class="fas fa-plus-circle me-1"></i>Añadir Concepto
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
