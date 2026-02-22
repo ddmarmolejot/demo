@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: isp_billing
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py ensure_superuser
     startCommand: gunicorn isp_billing.wsgi:application
     envVars:
       - key: PYTHON_VERSION
@@ -21,6 +21,12 @@ services:
         fromDatabase:
           name: isp-billing-db
           property: connectionString
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
 
 databases:
   - name: isp-billing-db
